@@ -1,0 +1,15 @@
+.venv/
+.env
+__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+wheels/
+node_modules/
+frontend/dist/
+backend/staticfiles/
+backend/frontend_dist/
+.DS_Store
+*.log
+.idea/
+.vscode/
