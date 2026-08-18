@@ -5,6 +5,7 @@ const CartContext = createContext(null)
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState({ items: [], total: 0, count: 0 })
+  const [packages, setPackages] = useState([])
   const [toast, setToast] = useState('')
 
   async function refresh() {
@@ -13,8 +14,15 @@ export function CartProvider({ children }) {
     return data
   }
 
+  async function loadPackages() {
+    const data = await api('/api/packages/')
+    setPackages(data)
+    return data
+  }
+
   useEffect(() => {
     refresh().catch(() => {})
+    loadPackages().catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -28,7 +36,17 @@ export function CartProvider({ children }) {
       cart,
       toast,
       refresh,
-      async addService(serviceId) {
+      async addService(service) {
+        const serviceId = typeof service === 'object' ? service.id : service
+        const existingPackage = packages.find((pack) => {
+          if (!cart.items.some((item) => item.kind === 'package' && item.package === pack.id)) return false
+          return pack.services.some((item) => item.id === serviceId)
+        })
+        if (existingPackage) {
+          const serviceName = typeof service === 'object' ? service.name : 'Эта услуга'
+          setToast(`${serviceName} уже входит в пакет «${existingPackage.name}» в корзине`)
+          return cart
+        }
         const data = await api('/api/cart/', { method: 'POST', body: { service: serviceId, quantity: 1 } })
         setCart(data)
         setToast('Услуга добавлена в корзину')
@@ -56,7 +74,7 @@ export function CartProvider({ children }) {
         return data
       },
     }),
-    [cart, toast],
+    [cart, packages, toast],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

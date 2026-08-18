@@ -36,8 +36,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       RUN_MIGRATIONS: "1"
       WEB_CONCURRENCY: ${WEB_CONCURRENCY:-3}
-    ports:
-      - "${PUBLISH_PORT:-80}:8000"
+    expose:
+      - "8000"
     depends_on:
       db:
         condition: service_healthy
@@ -59,7 +59,29 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./docker/${CADDYFILE:-Caddyfile.http}:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   bot:
+    build: .
     image: recruit-app:latest
     restart: unless-stopped
     env_file: .env
@@ -85,3 +107,5 @@ services:
 
 volumes:
   postgres_data:
+  caddy_data:
+  caddy_config:

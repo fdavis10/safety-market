@@ -1,57 +1,58 @@
 import { useMemo, useState } from 'react'
-import { AsYouType, isValidPhoneNumber, parsePhoneNumberFromString } from 'libphonenumber-js'
-import { phoneCountries } from '../data/countries'
-import CountrySelect from './CountrySelect'
+import { isValidPhoneNumber } from 'libphonenumber-js'
+import { flagUrl } from '../data/countries'
 
-const COUNTRIES = phoneCountries()
+const COUNTRY = { code: 'RU', name: 'Россия', dial: '7' }
 
 export default function PhoneField({ value, onChange, onValidity }) {
-  const [iso, setIso] = useState('RU')
   const [national, setNational] = useState('')
   const [touched, setTouched] = useState(false)
-  const selected = COUNTRIES.find((item) => item.code === iso) || COUNTRIES[0]
+
+  const digits = national.replace(/\D/g, '')
 
   const valid = useMemo(() => {
-    if (!national.trim()) return false
-    return isValidPhoneNumber(national, iso) || (value ? isValidPhoneNumber(value) : false)
-  }, [national, iso, value])
+    return digits.length === 10 && Boolean(value && isValidPhoneNumber(value))
+  }, [digits, value])
 
-  function emit(nextIso, nextNational) {
-    const typed = new AsYouType(nextIso)
-    const formatted = typed.input(nextNational)
-    const parsed = parsePhoneNumberFromString(formatted, nextIso)
-    const e164 = parsed?.number || ''
-    onChange(e164)
-    onValidity?.(Boolean(parsed && isValidPhoneNumber(parsed.number)))
-    return formatted
+  function formatDigits(raw) {
+    let next = raw.replace(/\D/g, '')
+    if (next.length === 11 && (next.startsWith('7') || next.startsWith('8'))) {
+      next = next.slice(1)
+    }
+    next = next.slice(0, 10)
+    if (next.length <= 3) return next
+    if (next.length <= 6) return `${next.slice(0, 3)} ${next.slice(3)}`
+    if (next.length <= 8) return `${next.slice(0, 3)} ${next.slice(3, 6)}-${next.slice(6)}`
+    return `${next.slice(0, 3)} ${next.slice(3, 6)}-${next.slice(6, 8)}-${next.slice(8)}`
   }
 
   function handleNational(raw) {
-    const formatted = emit(iso, raw)
-    setNational(formatted)
-  }
-
-  function handleCountry(country) {
-    setIso(country.code)
-    const formatted = emit(country.code, national.replace(/\D/g, ''))
+    const formatted = formatDigits(raw)
+    const nextDigits = formatted.replace(/\D/g, '')
+    const e164 = nextDigits.length === 10 ? `+7${nextDigits}` : ''
+    onChange(e164)
+    onValidity?.(nextDigits.length === 10 && isValidPhoneNumber(e164))
     setNational(formatted)
   }
 
   return (
     <div className="phone-field">
-      <CountrySelect countries={COUNTRIES} value={selected.code} onChange={handleCountry} showDial />
+      <div className="phone-prefix" aria-hidden="true">
+        <img src={flagUrl(COUNTRY.code)} alt="" />
+        +{COUNTRY.dial}
+      </div>
       <input
         required
         type="tel"
-        inputMode="tel"
+        inputMode="numeric"
         autoComplete="tel-national"
-        placeholder="Номер телефона"
+        placeholder="999 123-45-67"
         value={national}
         onChange={(e) => handleNational(e.target.value)}
         onBlur={() => setTouched(true)}
       />
       {touched && national && !valid && (
-        <p className="field-hint">Введите действующий номер для {selected.name}.</p>
+        <p className="field-hint">Введите действующий номер для России.</p>
       )}
     </div>
   )

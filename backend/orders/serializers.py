@@ -5,14 +5,29 @@ from .models import CartItem, Order
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    service_name = serializers.CharField(source="service.name", read_only=True)
-    price = serializers.DecimalField(source="service.price", max_digits=12, decimal_places=2, read_only=True)
+    item_name = serializers.SerializerMethodField()
+    kind = serializers.SerializerMethodField()
+    service = serializers.PrimaryKeyRelatedField(read_only=True)
+    package = serializers.PrimaryKeyRelatedField(read_only=True)
+    price = serializers.SerializerMethodField()
     line_total = serializers.SerializerMethodField()
-    category = serializers.CharField(source="service.category", read_only=True)
+    category = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
-        fields = ("id", "service", "service_name", "quantity", "price", "line_total", "category")
+        fields = ("id", "kind", "service", "package", "item_name", "quantity", "price", "line_total", "category")
+
+    def get_item_name(self, obj):
+        return obj.title
+
+    def get_kind(self, obj):
+        return "package" if obj.package_id else "service"
+
+    def get_price(self, obj):
+        return obj.unit_price
+
+    def get_category(self, obj):
+        return "package" if obj.package_id else obj.service.category
 
     def get_line_total(self, obj):
         return obj.line_total

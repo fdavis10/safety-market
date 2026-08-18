@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="container footer-grid">
         <div>
           <Logo />
-          <p>Кадровое агентство международного подбора. Сайт закрыт от индексации поисковыми системами.</p>
+          <p>Кадровое агентство международного подбора.</p>
         </div>
         <div>
           <h4>Разделы</h4>
@@ -29,7 +29,6 @@ export default function Footer() {
           <Link to="/offer" viewTransition>
             Публичная оферта
           </Link>
-          <p className="muted">Оплата только банковской картой</p>
         </div>
       </div>
     </footer>

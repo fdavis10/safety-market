@@ -16,7 +16,8 @@ export default function Cart() {
             {cart.items.map((item) => (
               <li key={item.id}>
                 <div>
-                  <strong>{item.service_name}</strong>
+                  <strong>{item.item_name}</strong>
+                  {item.kind === 'package' && <span>Пакет под ключ</span>}
                   <span>{money(item.price)}</span>
                 </div>
                 <div className="qty">
@@ -38,8 +39,12 @@ export default function Cart() {
         </div>
         <aside className="summary">
           <h3>Итого</h3>
-          <p className="total">{money(cart.total)}</p>
-          <p className="muted">Оплата только банковской картой. Гражданство обязательно при оформлении.</p>
+          <p className="total">
+            {money(cart.total)} <span aria-hidden="true">*</span>
+          </p>
+          <p className="muted">
+            * Оплата принимается только по безналичному расчёту. Продолжая оформление, вы подтверждаете согласие с этим условием.
+          </p>
           <Link to="/checkout" className={`btn btn-gold ${cart.items.length ? '' : 'disabled'}`} viewTransition>
             Оформить заказ
           </Link>

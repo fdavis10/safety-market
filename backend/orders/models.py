@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
-from catalog.models import Service
+from catalog.models import Package, Service
 
 
 class CartItem(models.Model):
@@ -19,6 +20,16 @@ class CartItem(models.Model):
         verbose_name="услуга",
         on_delete=models.CASCADE,
         related_name="cart_items",
+        null=True,
+        blank=True,
+    )
+    package = models.ForeignKey(
+        Package,
+        verbose_name="пакет",
+        on_delete=models.CASCADE,
+        related_name="cart_items",
+        null=True,
+        blank=True,
     )
     quantity = models.PositiveIntegerField("количество", default=1)
 
@@ -29,15 +40,40 @@ class CartItem(models.Model):
             models.UniqueConstraint(
                 fields=["session_key", "service"],
                 name="uniq_cart_session_service",
+                condition=Q(service__isnull=False),
+            ),
+            models.UniqueConstraint(
+                fields=["session_key", "package"],
+                name="uniq_cart_session_package",
+                condition=Q(package__isnull=False),
+            ),
+            models.CheckConstraint(
+                condition=(
+                    (Q(service__isnull=False) & Q(package__isnull=True))
+                    | (Q(service__isnull=True) & Q(package__isnull=False))
+                ),
+                name="cart_item_exactly_one_target",
             )
         ]
 
     def __str__(self):
-        return f"{self.service} × {self.quantity}"
+        return f"{self.title} × {self.quantity}"
 
     @property
     def line_total(self):
-        return self.service.price * self.quantity
+        return self.unit_price * self.quantity
+
+    @property
+    def unit_price(self):
+        if self.package_id:
+            return self.package.price
+        return self.service.price
+
+    @property
+    def title(self):
+        if self.package_id:
+            return self.package.name
+        return self.service.name
 
 
 class Order(models.Model):

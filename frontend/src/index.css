@@ -39,6 +39,7 @@ body {
 h1,
 h2,
 h3,
+.card-box-title,
 .brand-copy strong,
 .eyebrow {
   font-family: Unbounded, sans-serif;
@@ -786,6 +787,27 @@ main {
   gap: 24px;
 }
 
+.checkout-grid-stack {
+  grid-template-columns: 1fr;
+}
+
+.checkout-grid-stack .summary {
+  max-width: none;
+  grid-template-columns: 1fr;
+}
+
+.checkout-grid-stack .summary h3 {
+  margin: 0;
+}
+
+.checkout-grid-stack .summary ul {
+  width: min(100%, 520px);
+}
+
+.checkout-grid-stack .summary .total {
+  margin: 0;
+}
+
 .cart-list {
   list-style: none;
   padding: 0;
@@ -874,6 +896,46 @@ main {
   height: fit-content;
 }
 
+.summary ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.summary li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: start;
+}
+
+.summary-item-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.summary-item-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
+.summary li b {
+  white-space: nowrap;
+}
+
+.summary h3,
+.card-box-title {
+  margin: 0 0 16px;
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.12;
+  color: var(--ink);
+}
+
 .order-form,
 .document pre,
 .success {
@@ -886,6 +948,20 @@ main {
 .order-form {
   display: grid;
   gap: 14px;
+}
+
+.checkout-grid-stack .order-form {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+.order-form-panel {
+  background: #fffdf8;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: var(--shadow);
 }
 
 .order-form label,
@@ -1020,13 +1096,29 @@ main {
 
 .phone-field {
   display: grid;
-  grid-template-columns: 132px 1fr;
+  grid-template-columns: 88px 1fr;
   gap: 8px;
   margin-top: 6px;
 }
 
-.phone-field .country-select {
-  margin-top: 0;
+.phone-prefix {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--navy-deep);
+  font-weight: 700;
+}
+
+.phone-prefix img {
+  width: 20px;
+  height: 15px;
+  border-radius: 2px;
+  object-fit: cover;
 }
 
 .phone-field input[type='tel'] {
@@ -1044,6 +1136,10 @@ main {
   border: 1px solid var(--gold);
   border-radius: 18px;
   padding: 16px;
+  background: #fffdf8;
+}
+
+.card-box-title {
 }
 
 .sr-only {
@@ -1062,30 +1158,17 @@ main {
   margin: 0 0 16px;
 }
 
-.bank-card {
-  perspective: 1400px;
-}
-
 .bank-card-inner {
   position: relative;
   width: min(100%, 420px);
   margin: 0 auto;
-  aspect-ratio: 1.586 / 1;
-  transform-style: preserve-3d;
-  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.bank-card.is-flipped .bank-card-inner {
-  transform: rotateY(180deg);
+  aspect-ratio: auto;
 }
 
 .bank-card-face {
-  position: absolute;
-  inset: 0;
+  position: relative;
   border-radius: 20px;
   padding: 22px 24px 18px;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
   color: #f7f0dc;
   box-shadow: 0 22px 40px rgba(11, 28, 49, 0.28);
   overflow: hidden;
@@ -1095,12 +1178,6 @@ main {
   background:
     radial-gradient(120% 80% at 100% 0%, rgba(227, 195, 106, 0.28), transparent 46%),
     linear-gradient(145deg, #1a3c66 0%, #10233d 52%, #0b1c31 100%);
-}
-
-.bank-card-face.back {
-  transform: rotateY(180deg);
-  background: linear-gradient(145deg, #152a44, #0b1c31);
-  padding-top: 0;
 }
 
 .bank-card-top {
@@ -1184,56 +1261,14 @@ main {
   width: 108px;
 }
 
+.bank-cvv {
+  width: 92px;
+}
+
 .bank-expiry input {
   font-family: ui-monospace, Consolas, monospace;
   letter-spacing: 0.08em;
   text-align: center;
-}
-
-.bank-flip-hint {
-  margin-top: 14px;
-  border: 0;
-  background: transparent;
-  color: rgba(247, 240, 220, 0.75);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.bank-flip-hint:hover {
-  color: var(--gold-2);
-}
-
-.bank-stripe {
-  height: 46px;
-  margin: 22px 0 18px;
-  background: repeating-linear-gradient(
-    90deg,
-    #111 0 8px,
-    #1c1c1c 8px 12px,
-    #0a0a0a 12px 18px
-  );
-}
-
-.bank-sign-row {
-  display: grid;
-  grid-template-columns: 1fr 92px;
-  gap: 10px;
-  align-items: end;
-  padding: 0 8px;
-}
-
-.bank-sign {
-  height: 38px;
-  padding: 8px 10px;
-  background: repeating-linear-gradient(#f3ead7, #f3ead7 2px, #efe0c4 3px);
-  color: #5a3d2b;
-  font-family: "Segoe Script", "Comic Sans MS", cursive;
-  font-size: 14px;
-  overflow: hidden;
-  white-space: nowrap;
 }
 
 .bank-cvv input {
@@ -1245,14 +1280,57 @@ main {
 }
 
 .bank-back-copy {
-  margin: 16px 12px 0;
+  margin: 14px 0 0;
   font-size: 11px;
   line-height: 1.45;
   color: rgba(247, 240, 220, 0.62);
 }
 
-.bank-card-face.back .bank-flip-hint {
-  margin-left: 12px;
+@media (max-width: 640px) {
+  .card-box {
+    padding: 12px;
+  }
+
+  .bank-card-inner {
+    width: min(100%, 360px);
+  }
+
+  .bank-card-face {
+    border-radius: 16px;
+    padding: 16px 16px 14px;
+  }
+
+  .bank-chip {
+    width: 38px;
+    height: 28px;
+  }
+
+  .bank-brand {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+
+  .bank-number {
+    margin: 20px 0 14px;
+  }
+
+  .bank-card input {
+    padding: 7px 9px;
+  }
+
+  .bank-number input {
+    font-size: clamp(15px, 4.4vw, 18px);
+    letter-spacing: 0.1em;
+  }
+
+  .bank-front-row label span,
+  .bank-cvv span {
+    font-size: 11px;
+  }
+
+  .bank-back-copy {
+    font-size: 12px;
+  }
 }
 
 .req {
@@ -1280,6 +1358,13 @@ main {
   display: inline;
   width: auto;
   margin: 0;
+}
+
+.order-form .check-inline {
+  margin-top: 10px;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .form-error {
@@ -1505,12 +1590,13 @@ html:active-view-transition .page-enter {
     grid-template-columns: 1fr;
   }
 
-  .bank-expiry {
+  .bank-expiry,
+  .bank-cvv {
     width: 100%;
   }
 
   .phone-field {
-    grid-template-columns: 118px 1fr;
+    grid-template-columns: 80px 1fr;
   }
 }
 
@@ -1532,17 +1618,8 @@ html:active-view-transition .page-enter {
     animation: none !important;
   }
 
-  .bank-card-inner,
-  .bank-card.is-flipped .bank-card-inner {
+  .bank-card-inner {
     transition: none;
-    transform: none;
-  }
-
-  .bank-card.is-flipped .bank-card-face.front {
-    display: none;
-  }
-
-  .bank-card.is-flipped .bank-card-face.back {
     transform: none;
   }
 }

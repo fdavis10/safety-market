@@ -15,7 +15,7 @@ export default function ServiceCard({ service }) {
         <p>{service.description}</p>
         <div className="card-footer">
           <strong>{money(service.price)}</strong>
-          <button type="button" className="btn btn-navy" onClick={() => addService(service.id)}>
+          <button type="button" className="btn btn-navy" onClick={() => addService(service)}>
             В корзину
           </button>
         </div>

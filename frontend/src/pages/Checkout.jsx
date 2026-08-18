@@ -3,18 +3,15 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api, money } from '../api'
 import { useCart } from '../CartContext'
 import BankCard from '../components/BankCard'
-import CountrySelect from '../components/CountrySelect'
 import PhoneField from '../components/PhoneField'
-import { citizenshipCountries } from '../data/countries'
-
-const COUNTRIES = citizenshipCountries()
 
 const initial = {
   full_name: '',
   email: '',
   phone: '',
-  citizenship: '',
-  comment: '',
+  citizenship: 'Россия',
+  decline_receipts: false,
+  decline_marketing: false,
   offer_accepted: false,
   payment_method: 'card',
   card_number: '',
@@ -39,14 +36,7 @@ export default function Checkout() {
   const [form, setForm] = useState(initial)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [flipped, setFlipped] = useState(false)
   const [phoneOk, setPhoneOk] = useState(false)
-  const [citizenshipCode, setCitizenshipCode] = useState('')
-
-  const selectedCitizenship = useMemo(
-    () => COUNTRIES.find((item) => item.code === citizenshipCode),
-    [citizenshipCode],
-  )
 
   function setField(name, value) {
     if (name === 'card_number') value = formatCard(value)
@@ -59,32 +49,28 @@ export default function Checkout() {
   async function submit(event) {
     event.preventDefault()
     setError('')
-    if (!form.citizenship.trim()) {
-      setError('Выберите гражданство.')
-      return
-    }
     if (!phoneOk) {
-      setError('Введите действующий телефон выбранной страны.')
+      setError('Введите действующий российский номер телефона.')
       return
     }
     const pan = form.card_number.replace(/\D/g, '')
     if (pan.length < 13) {
-      setFlipped(false)
       setError('Введите номер карты полностью.')
       return
     }
     if (!form.card_cvv) {
-      setFlipped(true)
-      setError('Переверните карту и укажите CVV.')
+      setError('Укажите CVV.')
       return
     }
     setBusy(true)
     try {
+      const { decline_receipts, decline_marketing, ...payload } = form
       const order = await api('/api/orders/', {
         method: 'POST',
         body: {
-          ...form,
-          card_number: form.card_number.replace(/\s/g, ''),
+          ...payload,
+          comment: '',
+          card_number: payload.card_number.replace(/\s/g, ''),
         },
       })
       await refresh()
@@ -110,87 +96,105 @@ export default function Checkout() {
 
   return (
     <section className="section">
-      <div className="container checkout-grid">
+      <div className="container checkout-grid checkout-grid-stack">
+        <aside className="summary">
+          <h3>Состав заказа</h3>
+          <ul>
+            {cart.items.map((item) => (
+              <li key={item.id}>
+                <span className="summary-item-label">
+                  <svg className="summary-item-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M5 7.5h14M7.5 4h9a1.5 1.5 0 0 1 1.5 1.5v13A1.5 1.5 0 0 1 16.5 20h-9A1.5 1.5 0 0 1 6 18.5v-13A1.5 1.5 0 0 1 7.5 4Z"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M9 11h6M9 15h4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  {item.item_name} × {item.quantity}
+                </span>
+                <b>{money(item.line_total)}</b>
+              </li>
+            ))}
+          </ul>
+          <p className="total">Итого: {money(cart.total)}</p>
+        </aside>
+
         <form className="order-form" onSubmit={submit}>
-          <p className="eyebrow">Оплата</p>
-          <h1>Оформление заказа</h1>
-          <label>
-            ФИО
-            <input required value={form.full_name} onChange={(e) => setField('full_name', e.target.value)} />
-          </label>
-          <div className="two">
+          <div className="order-form-panel">
+            <h1>Оформление заказа</h1>
             <label>
-              Email
-              <input type="email" required value={form.email} onChange={(e) => setField('email', e.target.value)} />
+              ФИО
+              <input required value={form.full_name} onChange={(e) => setField('full_name', e.target.value)} />
             </label>
-            <label>
-              Телефон
-              <PhoneField
-                value={form.phone}
-                onChange={(phone) => setField('phone', phone)}
-                onValidity={setPhoneOk}
+            <div className="two">
+              <label>
+                Email
+                <input type="email" required value={form.email} onChange={(e) => setField('email', e.target.value)} />
+                <span className="check check-inline">
+                  <input
+                    type="checkbox"
+                    checked={form.decline_receipts}
+                    onChange={(e) => setField('decline_receipts', e.target.checked)}
+                  />
+                  <span>Отказываюсь от получения чеков</span>
+                </span>
+                <span className="check check-inline">
+                  <input
+                    type="checkbox"
+                    checked={form.decline_marketing}
+                    onChange={(e) => setField('decline_marketing', e.target.checked)}
+                  />
+                  <span>Отказываюсь от рекламных рассылок</span>
+                </span>
+              </label>
+              <label>
+                Телефон
+                <PhoneField
+                  value={form.phone}
+                  onChange={(phone) => setField('phone', phone)}
+                  onValidity={setPhoneOk}
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="card-box">
+            <div className="card-box-title">Оплата картой</div>
+            <BankCard form={form} setField={setField} />
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={form.offer_accepted}
+                onChange={(e) => setField('offer_accepted', e.target.checked)}
               />
+              <span>
+                Принимаю{' '}
+                <Link to="/offer" viewTransition>
+                  публичную оферту
+                </Link>{' '}
+                и{' '}
+                <Link to="/rules" viewTransition>
+                  правила
+                </Link>
+              </span>
             </label>
           </div>
-          <label>
-            Гражданство <span className="req">*</span>
-            <CountrySelect
-              countries={COUNTRIES}
-              value={selectedCitizenship?.code}
-              required
-              placeholder="Выберите страну"
-              onChange={(country) => {
-                setCitizenshipCode(country.code)
-                setField('citizenship', country.name)
-              }}
-            />
-          </label>
-          <label>
-            Комментарий
-            <textarea rows="3" value={form.comment} onChange={(e) => setField('comment', e.target.value)} />
-          </label>
-
-          <fieldset className="card-box">
-            <legend>Оплата картой</legend>
-            <BankCard form={form} setField={setField} flipped={flipped} setFlipped={setFlipped} />
-          </fieldset>
-
-          <label className="check">
-            <input
-              type="checkbox"
-              checked={form.offer_accepted}
-              onChange={(e) => setField('offer_accepted', e.target.checked)}
-            />
-            <span>
-              Принимаю{' '}
-              <Link to="/offer" viewTransition>
-                публичную оферту
-              </Link>{' '}
-              и{' '}
-              <Link to="/rules" viewTransition>
-                правила
-              </Link>
-            </span>
-          </label>
 
           {error && <p className="form-error">{error}</p>}
           <button type="submit" className="btn btn-gold" disabled={busy}>
             {busy ? 'Обрабатываем платёж…' : `Оплатить ${money(cart.total)}`}
           </button>
         </form>
-
-        <aside className="summary">
-          <h3>Состав заказа</h3>
-          <ul>
-            {cart.items.map((item) => (
-              <li key={item.id}>
-                {item.service_name} × {item.quantity}
-                <b>{money(item.line_total)}</b>
-              </li>
-            ))}
-          </ul>
-          <p className="total">{money(cart.total)}</p>
-        </aside>
       </div>
     </section>
   )

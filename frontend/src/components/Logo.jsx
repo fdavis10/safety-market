@@ -4,10 +4,10 @@ export default function Logo() {
   return (
     <span className="brand">
       <span className="brand-mark">
-        <img src={logo} alt="Рекрут" />
+        <img src={logo} alt="Р ПЛЮС" />
       </span>
       <span className="brand-copy">
-        <strong>Рекрут</strong>
+        <strong>Р ПЛЮС</strong>
         <small>подбор персонала</small>
       </span>
     </span>

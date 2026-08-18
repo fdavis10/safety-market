@@ -19,12 +19,13 @@ export function citizenshipCountries() {
 
 export function phoneCountries() {
   const names = iso.getNames('ru')
-  return getCountries()
-    .filter((code) => !BLOCKED.has(code))
-    .map((code) => ({
+  // Для сайта оставляем страну только Россию: в форме телефона нужен фиксированный код.
+  const code = 'RU'
+  return [
+    {
       code,
       name: names[code] || code,
       dial: String(getCountryCallingCode(code)),
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name, 'ru'))
+    },
+  ]
 }

@@ -25,9 +25,9 @@ def ensure_session(request):
 
 def cart_qs(request):
     session_key = ensure_session(request)
-    qs = CartItem.objects.filter(session_key=session_key).select_related("service")
+    qs = CartItem.objects.filter(session_key=session_key).select_related("service", "package")
     if request.user.is_authenticated:
-        qs = (CartItem.objects.filter(user=request.user).select_related("service") | qs).distinct()
+        qs = (CartItem.objects.filter(user=request.user).select_related("service", "package") | qs).distinct()
     return qs
 
 
@@ -53,9 +53,16 @@ class CartView(APIView):
         service = serializer.validated_data["service"]
         quantity = serializer.validated_data["quantity"]
         user = request.user if request.user.is_authenticated else None
+        package_item = cart_qs(request).filter(package__services=service).first()
+        if package_item:
+            return Response(
+                {"detail": f"Услуга уже входит в пакет «{package_item.package.name}» в корзине."},
+                status=409,
+            )
         item, created = CartItem.objects.get_or_create(
             session_key=session_key,
             service=service,
+            package=None,
             defaults={"quantity": quantity, "user": user},
         )
         if not created:
@@ -98,12 +105,17 @@ class PackageCartView(APIView):
             return Response({"detail": "Пакет не найден."}, status=404)
         session_key = ensure_session(request)
         user = request.user if request.user.is_authenticated else None
-        for service in package.services.filter(is_active=True):
-            CartItem.objects.get_or_create(
-                session_key=session_key,
-                service=service,
-                defaults={"quantity": 1, "user": user},
-            )
+        item, created = CartItem.objects.get_or_create(
+            session_key=session_key,
+            package=package,
+            service=None,
+            defaults={"quantity": 1, "user": user},
+        )
+        if not created:
+            item.quantity += 1
+            if user and not item.user:
+                item.user = user
+            item.save(update_fields=["quantity", "user"])
         return Response(cart_payload(request), status=201)
 
 
@@ -143,12 +155,15 @@ class CheckoutView(APIView):
                 [
                     OrderItem(
                         order=order,
-                        service=item.service,
-                        name=item.service.name,
+                        service=service,
+                        name=service.name,
                         quantity=item.quantity,
-                        price=item.service.price,
+                        price=service.price,
                     )
                     for item in items
+                    for service in (
+                        item.package.services.filter(is_active=True) if item.package_id else [item.service]
+                    )
                 ]
             )
             CartItem.objects.filter(id__in=[item.id for item in items]).delete()

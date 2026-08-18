@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { NavLink, Link } from 'react-router-dom'
+import { NavLink, Link, useLocation } from 'react-router-dom'
 import Logo from './Logo'
 import { useCart } from '../CartContext'
 
 export default function Header() {
   const { cart } = useCart()
   const [open, setOpen] = useState(false)
+  const location = useLocation()
+  const hideCart = location.pathname === '/cart' || location.pathname === '/checkout' || location.pathname.startsWith('/order/')
 
   function close() {
     setOpen(false)
@@ -40,27 +42,29 @@ export default function Header() {
           </NavLink>
         </nav>
         <div className="header-actions">
-          <Link to="/cart" className="cart-link" viewTransition onClick={close}>
-            <svg className="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6.4 7.2h11.2l-.8 10.2H7.2L6.4 7.2Z"
-              />
-              <path
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                d="M9 7.2V6.4a3 3 0 0 1 6 0v.8"
-              />
-            </svg>
-            Корзина
-            {cart.count > 0 && <span className="cart-count">{cart.count}</span>}
-          </Link>
+          {!hideCart && (
+            <Link to="/cart" className="cart-link" viewTransition onClick={close}>
+              <svg className="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6.4 7.2h11.2l-.8 10.2H7.2L6.4 7.2Z"
+                />
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  d="M9 7.2V6.4a3 3 0 0 1 6 0v.8"
+                />
+              </svg>
+              Корзина
+              {cart.count > 0 && <span className="cart-count">{cart.count}</span>}
+            </Link>
+          )}
           <Link to="/services" className="btn btn-gold" viewTransition onClick={close}>
             Заказать услугу
           </Link>
