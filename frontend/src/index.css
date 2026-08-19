@@ -553,6 +553,13 @@ main {
   box-shadow: var(--shadow);
 }
 
+.step-desc {
+  display: block;
+  margin-top: 8px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -1340,9 +1347,13 @@ main {
 .order-form .check {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
   width: auto;
   line-height: 1.45;
+}
+
+.card-box > .check {
+  margin-top: 18px;
 }
 
 .order-form .check input {

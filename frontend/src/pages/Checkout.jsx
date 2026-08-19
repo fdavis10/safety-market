@@ -143,18 +143,14 @@ export default function Checkout() {
                 <span className="check check-inline">
                   <input
                     type="checkbox"
-                    checked={form.decline_receipts}
-                    onChange={(e) => setField('decline_receipts', e.target.checked)}
+                  checked={form.decline_receipts}
+                  onChange={(e) => {
+                    const checked = e.target.checked
+                    setField('decline_receipts', checked)
+                    setField('decline_marketing', checked)
+                  }}
                   />
-                  <span>Отказываюсь от получения чеков</span>
-                </span>
-                <span className="check check-inline">
-                  <input
-                    type="checkbox"
-                    checked={form.decline_marketing}
-                    onChange={(e) => setField('decline_marketing', e.target.checked)}
-                  />
-                  <span>Отказываюсь от рекламных рассылок</span>
+                <span>Отказываюсь от получения чеков и рекламных рассылок</span>
                 </span>
               </label>
               <label>
@@ -169,7 +165,7 @@ export default function Checkout() {
           </div>
 
           <div className="card-box">
-            <div className="card-box-title">Оплата картой</div>
+            <div className="card-box-title">Оплата</div>
             <BankCard form={form} setField={setField} />
             <label className="check">
               <input
