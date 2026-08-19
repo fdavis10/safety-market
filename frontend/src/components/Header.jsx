@@ -7,7 +7,7 @@ export default function Header() {
   const { cart } = useCart()
   const [open, setOpen] = useState(false)
   const location = useLocation()
-  const hideCart = location.pathname === '/cart' || location.pathname === '/checkout' || location.pathname.startsWith('/order/')
+  const hideCart = location.pathname === '/cart'
 
   function close() {
     setOpen(false)
