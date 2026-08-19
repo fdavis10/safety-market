@@ -1291,9 +1291,10 @@ main {
 .bank-cvv input:focus {
   /* Нужная синяя подсветка именно у CVV, а не у всей банковской формы */
   outline: none;
-  background: #fff;
+  background: rgba(37, 99, 235, 0.14);
   border-color: transparent;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.45);
+  /* inset, чтобы не двигать размеры инпута и чтобы было именно "синее поле" */
+  box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.9), 0 0 0 2px rgba(37, 99, 235, 0.18);
 }
 
 .bank-back-copy {
