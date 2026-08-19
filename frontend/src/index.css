@@ -1282,8 +1282,6 @@ main {
   text-align: center;
   letter-spacing: 0.28em;
   font-family: ui-monospace, Consolas, monospace;
-  background: #fff;
-  color: var(--navy-deep);
   outline: none;
   box-shadow: none;
 }

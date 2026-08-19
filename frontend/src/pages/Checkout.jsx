@@ -189,7 +189,16 @@ export default function Checkout() {
                 checked={form.consent_personal_data}
                 onChange={(e) => setField('consent_personal_data', e.target.checked)}
               />
-              <span>Согласие на обработку персональных данных</span>
+              <span>
+                Согласие на{' '}
+                <a
+                  href="https://www.consultant.ru/document/cons_doc_LAW_61801/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  обработку персональных данных
+                </a>
+              </span>
             </label>
             <label className="check">
               <input
@@ -197,7 +206,12 @@ export default function Checkout() {
                 checked={form.consent_user_agreement}
                 onChange={(e) => setField('consent_user_agreement', e.target.checked)}
               />
-              <span>Согласие с пользовательским соглашением</span>
+              <span>
+                Согласие с{' '}
+                <Link to="/rules" viewTransition>
+                  пользовательским соглашением
+                </Link>
+              </span>
             </label>
             <label className="check">
               <input
@@ -205,7 +219,12 @@ export default function Checkout() {
                 checked={form.consent_offer}
                 onChange={(e) => setField('consent_offer', e.target.checked)}
               />
-              <span>Согласие с офертой</span>
+              <span>
+                Согласие с{' '}
+                <Link to="/offer" viewTransition>
+                  офертой
+                </Link>
+              </span>
             </label>
           </div>
 
