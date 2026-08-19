@@ -8,7 +8,7 @@ export default function Logo() {
       </span>
       <span className="brand-copy">
         <strong>Р ПЛЮС</strong>
-        <small>подбор персонала</small>
+        <small>кадровое агентство</small>
       </span>
     </span>
   )
