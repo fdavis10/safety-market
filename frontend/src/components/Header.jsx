@@ -14,6 +14,7 @@ export default function Header() {
   }
 
   return (
+    <>
     <header className="site-header">
       <div className={`container header-inner ${open ? 'open' : ''}`}>
         <Link to="/" className="header-logo" viewTransition onClick={close}>
@@ -70,28 +71,29 @@ export default function Header() {
           </Link>
         </div>
       </div>
-      {!hideCart && (
-        <Link to="/cart" className="cart-fab" viewTransition onClick={close} aria-label="Корзина">
-          <svg className="cart-fab-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6.4 7.2h11.2l-.8 10.2H7.2L6.4 7.2Z"
-            />
-            <path
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              d="M9 7.2V6.4a3 3 0 0 1 6 0v.8"
-            />
-          </svg>
-          {cart.count > 0 && <span className="cart-count cart-fab-count">{cart.count}</span>}
-        </Link>
-      )}
     </header>
+    {!hideCart && (
+      <Link to="/cart" className="cart-fab" viewTransition onClick={close} aria-label="Корзина">
+        <svg className="cart-fab-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M6.4 7.2h11.2l-.8 10.2H7.2L6.4 7.2Z"
+          />
+          <path
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            d="M9 7.2V6.4a3 3 0 0 1 6 0v.8"
+          />
+        </svg>
+        {cart.count > 0 && <span className="cart-count cart-fab-count">{cart.count}</span>}
+      </Link>
+    )}
+    </>
   )
 }

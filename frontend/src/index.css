@@ -255,7 +255,7 @@ main {
   color: var(--gold-2);
 }
 
-.cart-link span,
+.cart-link .cart-count,
 .cart-count {
   background: var(--gold);
   color: var(--navy-deep);
@@ -281,8 +281,8 @@ main {
 .cart-fab {
   display: none;
   position: fixed;
-  right: 18px;
-  bottom: 18px;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
   z-index: 1000;
   width: 56px;
   height: 56px;
@@ -1606,13 +1606,13 @@ html:active-view-transition .page-enter {
     display: block;
   }
 
-  .cart-text {
+  /* На мобильном корзина только в FAB снизу справа */
+  .header-actions .cart-link {
     display: none;
   }
 
-  /* На мобильном счётчик показываем в FAB, а не рядом с иконкой в бургер-меню */
-  .header-actions .cart-link .cart-count {
-    display: none;
+  .cart-fab {
+    display: inline-flex;
   }
 
   .nav,
@@ -1661,12 +1661,6 @@ html:active-view-transition .page-enter {
 
   .phone-field {
     grid-template-columns: 80px 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .cart-fab {
-    display: inline-flex;
   }
 }
 
