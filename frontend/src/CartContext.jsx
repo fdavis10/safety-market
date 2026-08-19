@@ -53,10 +53,16 @@ export function CartProvider({ children }) {
         return data
       },
       async addPackage(packageId) {
-        const data = await api(`/api/cart/packages/${packageId}/`, { method: 'POST' })
-        setCart(data)
-        setToast('Пакет добавлен в корзину')
-        return data
+        try {
+          const data = await api(`/api/cart/packages/${packageId}/`, { method: 'POST' })
+          setCart(data)
+          setToast('Пакет добавлен в корзину')
+          return data
+        } catch (err) {
+          // Например, пакет содержит услуги, которые уже добавлены отдельно в корзину.
+          setToast(err.message)
+          return cart
+        }
       },
       async updateItem(id, quantity) {
         const data = await api(`/api/cart/items/${id}/`, { method: 'PATCH', body: { quantity } })

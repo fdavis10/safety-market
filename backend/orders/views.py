@@ -103,6 +103,17 @@ class PackageCartView(APIView):
         package = Package.objects.prefetch_related("services").filter(pk=pk).first()
         if not package:
             return Response({"detail": "Пакет не найден."}, status=404)
+
+        # Если в корзине уже есть отдельные услуги из этого пакета,
+        # не позволяем добавить пакет и эти услуги вместе.
+        service_ids = list(package.services.values_list("id", flat=True))
+        existing_service_item = cart_qs(request).filter(service_id__in=service_ids).first()
+        if existing_service_item and existing_service_item.service_id:
+            service_name = existing_service_item.service.name if existing_service_item.service else "Эта услуга"
+            return Response(
+                {"detail": f"Услуга «{service_name}» уже добавлена в корзину."},
+                status=409,
+            )
         session_key = ensure_session(request)
         user = request.user if request.user.is_authenticated else None
         item, created = CartItem.objects.get_or_create(
