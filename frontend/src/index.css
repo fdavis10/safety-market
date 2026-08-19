@@ -274,6 +274,41 @@ main {
   flex-shrink: 0;
 }
 
+.cart-text {
+  font-weight: 700;
+}
+
+.cart-fab {
+  display: none;
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1000;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--navy-deep);
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14px 34px rgba(11, 28, 49, 0.25);
+}
+
+.cart-fab-icon {
+  width: 26px;
+  height: 26px;
+}
+
+.cart-fab-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
 .nav-toggle {
   display: none;
   width: 42px;
@@ -1571,6 +1606,15 @@ html:active-view-transition .page-enter {
     display: block;
   }
 
+  .cart-text {
+    display: none;
+  }
+
+  /* На мобильном счётчик показываем в FAB, а не рядом с иконкой в бургер-меню */
+  .header-actions .cart-link .cart-count {
+    display: none;
+  }
+
   .nav,
   .header-actions {
     display: none;
@@ -1617,6 +1661,12 @@ html:active-view-transition .page-enter {
 
   .phone-field {
     grid-template-columns: 80px 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .cart-fab {
+    display: inline-flex;
   }
 }
 
