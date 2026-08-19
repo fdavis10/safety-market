@@ -12,7 +12,9 @@ const initial = {
   citizenship: 'Россия',
   decline_receipts: false,
   decline_marketing: false,
-  offer_accepted: false,
+  consent_personal_data: false,
+  consent_user_agreement: false,
+  consent_offer: false,
   payment_method: 'card',
   card_number: '',
   card_holder: '',
@@ -53,6 +55,12 @@ export default function Checkout() {
       setError('Введите действующий российский номер телефона.')
       return
     }
+    const offer_accepted =
+      form.consent_personal_data && form.consent_user_agreement && form.consent_offer
+    if (!offer_accepted) {
+      setError('Необходимо отметить все согласия.')
+      return
+    }
     const pan = form.card_number.replace(/\D/g, '')
     if (pan.length < 13) {
       setError('Введите номер карты полностью.')
@@ -64,11 +72,19 @@ export default function Checkout() {
     }
     setBusy(true)
     try {
-      const { decline_receipts, decline_marketing, ...payload } = form
+      const {
+        decline_receipts,
+        decline_marketing,
+        consent_personal_data,
+        consent_user_agreement,
+        consent_offer,
+        ...payload
+      } = form
       const order = await api('/api/orders/', {
         method: 'POST',
         body: {
           ...payload,
+          offer_accepted,
           comment: '',
           card_number: payload.card_number.replace(/\s/g, ''),
         },
@@ -170,19 +186,26 @@ export default function Checkout() {
             <label className="check">
               <input
                 type="checkbox"
-                checked={form.offer_accepted}
-                onChange={(e) => setField('offer_accepted', e.target.checked)}
+                checked={form.consent_personal_data}
+                onChange={(e) => setField('consent_personal_data', e.target.checked)}
               />
-              <span>
-                Принимаю{' '}
-                <Link to="/offer" viewTransition>
-                  публичную оферту
-                </Link>{' '}
-                и{' '}
-                <Link to="/rules" viewTransition>
-                  правила
-                </Link>
-              </span>
+              <span>Согласие на обработку персональных данных</span>
+            </label>
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={form.consent_user_agreement}
+                onChange={(e) => setField('consent_user_agreement', e.target.checked)}
+              />
+              <span>Согласие с пользовательским соглашением</span>
+            </label>
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={form.consent_offer}
+                onChange={(e) => setField('consent_offer', e.target.checked)}
+              />
+              <span>Согласие с офертой</span>
             </label>
           </div>
 
