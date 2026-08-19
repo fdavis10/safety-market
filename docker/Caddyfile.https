@@ -2,7 +2,7 @@
 	email {$ACME_EMAIL}
 }
 
-{$DOMAIN} {
+{$DOMAIN}, {$DOMAIN2} {
 	encode gzip
 	reverse_proxy web:8000
 	header {
@@ -13,4 +13,8 @@
 
 www.{$DOMAIN} {
 	redir https://{$DOMAIN}{uri} permanent
+}
+
+www.{$DOMAIN2} {
+	redir https://{$DOMAIN2}{uri} permanent
 }
