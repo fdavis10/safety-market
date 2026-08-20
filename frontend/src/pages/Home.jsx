@@ -2,24 +2,25 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
 import Logo from '../components/Logo'
-import logoMark from '../assets/logo.png'
-import searchImg from '../assets/activity/searching.png'
-import auditImg from '../assets/activity/auditdocuments.png'
-import logisticImg from '../assets/activity/world_logistic.png'
-import adaptImg from '../assets/activity/adaptaion.png'
+import searchImg from '../assets/activity/searching.webp'
+import auditImg from '../assets/activity/auditdocuments.webp'
+import logisticImg from '../assets/activity/world_logistic.webp'
+import adaptImg from '../assets/activity/adaptaion.webp'
 import { useLocale } from '../i18n/LocaleContext'
+import { getDefaultSite } from '../i18n/content'
 
 const ACTIVITY_IMAGES = [searchImg, auditImg, logisticImg, adaptImg]
 
 export default function Home() {
-  const [site, setSite] = useState(null)
-  const { t, localizeSite } = useLocale()
+  const { t, lang, localizeSite } = useLocale()
+  const [site, setSite] = useState(() => getDefaultSite(lang))
 
   useEffect(() => {
-    api('/api/site/').then(setSite)
-  }, [])
-
-  if (!site) return null
+    setSite(getDefaultSite(lang))
+    api('/api/site/')
+      .then((data) => setSite(data))
+      .catch(() => {})
+  }, [lang])
 
   const localized = localizeSite(site)
 
@@ -67,10 +68,15 @@ export default function Home() {
             {localized.activity.map((item, index) => (
               <article key={item} className={`activity-card ${ACTIVITY_IMAGES[index] ? 'has-cover' : ''}`}>
                 {ACTIVITY_IMAGES[index] ? (
-                  <img className="cover" src={ACTIVITY_IMAGES[index]} alt="" />
-                ) : (
-                  <img className="mark" src={logoMark} alt="" />
-                )}
+                  <img
+                    className="cover"
+                    src={ACTIVITY_IMAGES[index]}
+                    alt=""
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    fetchPriority={index === 0 ? 'high' : 'auto'}
+                  />
+                ) : null}
                 <p>{item}</p>
               </article>
             ))}

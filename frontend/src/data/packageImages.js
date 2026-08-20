@@ -3,10 +3,16 @@ const files = import.meta.glob('../assets/packages/*.{jpg,jpeg,png,webp}', {
   import: 'default',
 })
 
-export function packageImage(slug) {
-  const match = Object.entries(files).find(([path]) => {
+function pickImage(slug) {
+  const matches = Object.entries(files).filter(([path]) => {
     const file = path.split(/[/\\]/).pop()?.replace(/\.[^.]+$/, '')
     return file === slug
   })
-  return match?.[1] || null
+  if (!matches.length) return null
+  const webp = matches.find(([path]) => path.endsWith('.webp'))
+  return (webp || matches[0])[1]
+}
+
+export function packageImage(slug) {
+  return pickImage(slug)
 }

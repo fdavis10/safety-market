@@ -31,7 +31,15 @@ export default function ServiceCard({ service }) {
 
   return (
     <article className={`service-card ${cover ? 'has-cover' : ''}`}>
-      {cover && <img className="cover" src={cover} alt="" />}
+      {cover && (
+        <img
+          className="cover"
+          src={cover}
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+      )}
       <div className="service-body">
         <h3>{service.name}</h3>
         <p>{service.description}</p>

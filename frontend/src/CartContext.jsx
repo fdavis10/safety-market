@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { api } from './api'
+import { api, ensureCsrf } from './api'
 import { useLocale } from './i18n/LocaleContext'
 
 const CartContext = createContext(null)
@@ -31,9 +31,11 @@ export function CartProvider({ children }) {
   }
 
   useEffect(() => {
-    refresh().catch(() => {})
-    loadPackages().catch(() => {})
-    loadServices().catch(() => {})
+    ensureCsrf()
+      .then(() =>
+        Promise.all([refresh(), loadPackages(), loadServices()]).catch(() => {}),
+      )
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -61,6 +63,7 @@ export function CartProvider({ children }) {
       servicePayment,
       setServicePayment,
       services,
+      packages,
       servicesById,
       refresh,
       async addService(service, paymentType = '50') {

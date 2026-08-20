@@ -1,15 +1,10 @@
-import { useEffect, useState } from 'react'
-import { api } from '../api'
 import ServiceCard from '../components/ServiceCard'
+import { useCart } from '../CartContext'
 import { useLocale } from '../i18n/LocaleContext'
 
 export default function Catalog() {
-  const [services, setServices] = useState([])
+  const { services } = useCart()
   const { t, localizeService } = useLocale()
-
-  useEffect(() => {
-    api('/api/services/').then(setServices)
-  }, [])
 
   return (
     <section className="section">
@@ -17,7 +12,7 @@ export default function Catalog() {
         <p className="eyebrow">{t('catalog.eyebrow')}</p>
         <h1>{t('catalog.title')}</h1>
         <div className="cards-3">
-          {services.map((service) => (
+          {(services || []).map((service) => (
             <ServiceCard key={service.id} service={localizeService(service)} />
           ))}
         </div>

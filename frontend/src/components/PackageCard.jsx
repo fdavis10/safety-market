@@ -32,7 +32,7 @@ export default function PackageCard({ pack }) {
     <article className="package-card">
       {pack.payment_terms && <div className="package-payment-note">{pack.payment_terms}</div>}
       <h3>{pack.name}</h3>
-      {cover && <img className="package-cover" src={cover} alt="" />}
+      {cover && <img className="package-cover" src={cover} alt="" loading="lazy" decoding="async" />}
       <p>{pack.description}</p>
       <ul>
         {services.map((service) => (

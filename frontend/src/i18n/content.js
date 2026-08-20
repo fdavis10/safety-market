@@ -1,3 +1,19 @@
+const SITE_RU = {
+  name: 'Р ПЛЮС',
+  letter: 'Р',
+  tagline: 'Подбор международного персонала под различные задачи и специальности',
+  description:
+    'Кадровое агентство «Р ПЛЮС» закрывает вакансии квалифицированными специалистами и сопровождает кандидата от проверки документов до выхода на рабочее место в Российской Федерации.',
+  mission:
+    'Мы берём на себя юридический, логистический и бытовой контур, чтобы работодатель получил готового сотрудника, а специалист — прозрачные условия, поддержку на всех этапах и безопасный маршрут переезда.',
+  activity: [
+    'Поиск и первичный отбор кандидатов под профиль вакансии',
+    'Аудит документов, визовое сопровождение и финансовые гарантии',
+    'Международная логистика переезда, включая сложные маршруты',
+    'Адаптация в РФ: жильё, медицина, язык и консьерж-поддержка',
+  ],
+}
+
 const SITE_EN = {
   tagline: 'International staffing for a wide range of roles and specialties',
   description:
@@ -155,10 +171,23 @@ const PACKAGE_PAYMENT_EN = {
   turnkey: 'Postpayment',
 }
 
+export function getDefaultSite(lang = 'ru') {
+  return lang === 'en' ? { ...SITE_RU, ...SITE_EN } : { ...SITE_RU }
+}
+
 export function localizeSite(site, lang) {
-  if (!site || lang !== 'en') return site
+  const base = site || SITE_RU
+  if (lang !== 'en') {
+    return {
+      ...base,
+      tagline: SITE_RU.tagline,
+      description: SITE_RU.description,
+      mission: SITE_RU.mission,
+      activity: SITE_RU.activity,
+    }
+  }
   return {
-    ...site,
+    ...base,
     ...SITE_EN,
     rules: RULES_EN,
     offer: OFFER_EN,
