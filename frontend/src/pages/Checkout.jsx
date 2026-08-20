@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { api } from '../api'
 import { useCart } from '../CartContext'
-import BankCard from '../components/BankCard'
 import PhoneField from '../components/PhoneField'
 import { useLocale } from '../i18n/LocaleContext'
 import { localizeCartItemName } from '../i18n/content'
@@ -18,36 +17,17 @@ const initial = {
   consent_user_agreement: false,
   consent_offer: false,
   payment_method: 'card',
-  card_number: '',
-  card_holder: '',
-  card_expiry: '',
-  card_cvv: '',
-}
-
-function formatCard(value) {
-  return value.replace(/\D/g, '').slice(0, 19).replace(/(\d{4})(?=\d)/g, '$1 ')
-}
-
-function formatExpiry(value) {
-  const digits = value.replace(/\D/g, '').slice(0, 4)
-  if (digits.length < 3) return digits
-  return `${digits.slice(0, 2)}/${digits.slice(2)}`
 }
 
 export default function Checkout() {
   const { cart, refresh, servicesById } = useCart()
   const { t, money, lang } = useLocale()
-  const navigate = useNavigate()
   const [form, setForm] = useState(initial)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [phoneOk, setPhoneOk] = useState(false)
 
   function setField(name, value) {
-    if (name === 'card_number') value = formatCard(value)
-    if (name === 'card_holder') value = value.toUpperCase()
-    if (name === 'card_expiry') value = formatExpiry(value)
-    if (name === 'card_cvv') value = value.replace(/\D/g, '').slice(0, 4)
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -62,15 +42,6 @@ export default function Checkout() {
       form.consent_personal_data && form.consent_user_agreement && form.consent_offer
     if (!offer_accepted) {
       setError(t('checkout.err.consents'))
-      return
-    }
-    const pan = form.card_number.replace(/\D/g, '')
-    if (pan.length < 13) {
-      setError(t('checkout.err.card'))
-      return
-    }
-    if (!form.card_cvv) {
-      setError(t('checkout.err.cvv'))
       return
     }
     setBusy(true)
@@ -89,14 +60,15 @@ export default function Checkout() {
           ...payload,
           offer_accepted,
           comment: '',
-          card_number: payload.card_number.replace(/\s/g, ''),
         },
       })
       await refresh()
-      navigate(`/order/${order.id}`, { viewTransition: true })
+      if (!order.form_url) {
+        throw new Error(t('checkout.err.payment'))
+      }
+      window.location.assign(order.form_url)
     } catch (err) {
       setError(err.message)
-    } finally {
       setBusy(false)
     }
   }
@@ -185,7 +157,7 @@ export default function Checkout() {
 
           <div className="card-box">
             <div className="card-box-title">{t('checkout.payment')}</div>
-            <BankCard form={form} setField={setField} />
+            <p className="checkout-bank-note">{t('checkout.bankRedirect')}</p>
             <label className="check">
               <input
                 type="checkbox"
@@ -233,7 +205,7 @@ export default function Checkout() {
 
           {error && <p className="form-error">{error}</p>}
           <button type="submit" className="btn btn-gold" disabled={busy}>
-            {busy ? t('checkout.paying') : t('checkout.pay', { amount: money(cart.total) })}
+            {busy ? t('checkout.redirecting') : t('checkout.pay', { amount: money(cart.total) })}
           </button>
         </form>
       </div>

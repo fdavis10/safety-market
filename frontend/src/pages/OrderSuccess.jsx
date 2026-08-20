@@ -18,6 +18,47 @@ export default function OrderSuccess() {
   if (error) return <section className="section container">{error}</section>
   if (!order) return <section className="section container">{t('order.checking')}</section>
 
+  if (order.status === 'pending') {
+    return (
+      <section className="section">
+        <div className="container success">
+          <h1>{t('order.pendingTitle')}</h1>
+          <p>{t('order.pending')}</p>
+          <Link to={`/order/${id}/pay`} className="btn btn-gold" viewTransition>
+            {t('order.checkAgain')}
+          </Link>
+        </div>
+      </section>
+    )
+  }
+
+  if (order.status === 'failed') {
+    return (
+      <section className="section">
+        <div className="container success">
+          <h1>{t('order.failedTitle')}</h1>
+          <p>{t('order.failed')}</p>
+          <Link to="/checkout" className="btn btn-gold" viewTransition>
+            {t('order.retry')}
+          </Link>
+        </div>
+      </section>
+    )
+  }
+
+  const cardMeta =
+    order.card_last4 && order.card_brand
+      ? t('order.meta', {
+          name: order.full_name,
+          citizenship: order.citizenship,
+          brand: order.card_brand,
+          last4: order.card_last4,
+        })
+      : t('order.metaSimple', {
+          name: order.full_name,
+          citizenship: order.citizenship,
+        })
+
   return (
     <section className="section">
       <div className="container success">
@@ -25,14 +66,7 @@ export default function OrderSuccess() {
           {t('cart.eyebrow')} №{order.id}
         </p>
         <h1>{t('order.paid')}</h1>
-        <p>
-          {t('order.meta', {
-            name: order.full_name,
-            citizenship: order.citizenship,
-            brand: order.card_brand,
-            last4: order.card_last4,
-          })}
-        </p>
+        <p>{cardMeta}</p>
         <ul>
           {order.items.map((item) => (
             <li key={item.name}>

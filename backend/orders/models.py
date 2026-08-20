@@ -117,6 +117,7 @@ class CartItem(models.Model):
 
 class Order(models.Model):
     class Status(models.TextChoices):
+        PENDING = "pending", "Ожидает оплаты"
         PAID = "paid", "Оплачен"
         FAILED = "failed", "Ошибка оплаты"
 
@@ -137,7 +138,20 @@ class Order(models.Model):
     payment_method = models.CharField("способ оплаты", max_length=16, default="card")
     card_last4 = models.CharField("последние 4 цифры карты", max_length=4, blank=True)
     card_brand = models.CharField("платёжная система", max_length=32, blank=True)
-    status = models.CharField("статус", max_length=16, choices=Status.choices, default=Status.PAID)
+    sber_order_id = models.CharField("ID заказа в Сбере", max_length=64, blank=True, db_index=True)
+    sber_order_number = models.CharField(
+        "номер заказа для Сбера",
+        max_length=64,
+        blank=True,
+        unique=True,
+        null=True,
+    )
+    status = models.CharField(
+        "статус",
+        max_length=16,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
     offer_accepted = models.BooleanField("оферта принята", default=False)
     created_at = models.DateTimeField("создан", auto_now_add=True)
 

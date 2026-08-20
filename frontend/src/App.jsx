@@ -8,6 +8,7 @@ import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import DocumentPage from './pages/DocumentPage'
 import OrderSuccess from './pages/OrderSuccess'
+import OrderPayReturn from './pages/OrderPayReturn'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/rules" element={<DocumentPage kind="rules" />} />
             <Route path="/offer" element={<DocumentPage kind="offer" />} />
+            <Route path="/order/:id/pay" element={<OrderPayReturn />} />
             <Route path="/order/:id" element={<OrderSuccess />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

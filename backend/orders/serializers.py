@@ -58,11 +58,7 @@ class CheckoutSerializer(serializers.Serializer):
     citizenship = serializers.CharField(max_length=120, required=True, allow_blank=False)
     comment = serializers.CharField(required=False, allow_blank=True, default="")
     offer_accepted = serializers.BooleanField()
-    payment_method = serializers.ChoiceField(choices=["card"])
-    card_number = serializers.CharField(write_only=True)
-    card_holder = serializers.CharField(write_only=True)
-    card_expiry = serializers.CharField(write_only=True)
-    card_cvv = serializers.CharField(write_only=True)
+    payment_method = serializers.ChoiceField(choices=["card"], default="card", required=False)
 
     def validate_citizenship(self, value):
         value = value.strip()

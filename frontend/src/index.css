@@ -1488,6 +1488,13 @@ main {
   background: #fffdf8;
 }
 
+.checkout-bank-note {
+  margin: 0 0 14px;
+  color: var(--muted, #5c6570);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
 .card-box-title {
 }
 

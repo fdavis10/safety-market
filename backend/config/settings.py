@@ -196,3 +196,14 @@ LOGGING = {
 
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_ADMIN_PASSWORD = os.environ.get("TELEGRAM_ADMIN_PASSWORD", "passwordkey")
+
+SBER_USERNAME = os.environ.get("SBER_USERNAME", "")
+SBER_PASSWORD = os.environ.get("SBER_PASSWORD", "")
+SBER_API_BASE = os.environ.get(
+    "SBER_API_BASE",
+    "https://ecomtest.sberbank.ru/ecomm/gw/partner/api/v1",
+).rstrip("/")
+# Тестовый ecomtest часто идёт с цепочкой НУЦ Минцифры / прокси — без явного
+# SBER_VERIFY_SSL=1 проверку сертификата отключаем.
+_sber_verify_default = "ecomtest" not in SBER_API_BASE.lower()
+SBER_VERIFY_SSL = _env_bool("SBER_VERIFY_SSL", default=_sber_verify_default)

@@ -19,7 +19,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ("id", "full_name", "citizenship", "total", "payment_method", "status", "created_at")
     list_filter = ("status", "payment_method")
     inlines = [OrderItemInline]
-    readonly_fields = ("card_last4", "card_brand")
+    readonly_fields = ("card_last4", "card_brand", "sber_order_id", "sber_order_number")
 
 
 @admin.register(TelegramAdmin)

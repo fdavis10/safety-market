@@ -1,13 +1,15 @@
 from decimal import Decimal
 import logging
+import uuid
 
+from django.conf import settings
 from django.db import transaction
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from catalog.models import Package, Service
 from .models import CartItem, Order, OrderItem
-from .payments import charge_card
+from .payments import SberPaymentError, amount_to_kopecks, get_order_status, register_order
 from .telegram import notify_new_order
 from .serializers import (
     CartItemSerializer,
@@ -162,14 +164,13 @@ class CheckoutView(APIView):
         if not items:
             return Response({"detail": "Корзина пуста."}, status=400)
 
-        try:
-            payment = charge_card(serializer.validated_data)
-        except ValueError as exc:
-            return Response({"detail": str(exc)}, status=400)
-
         total = sum((item.line_total for item in items), Decimal("0"))
+        if total <= 0:
+            return Response({"detail": "Сумма заказа должна быть больше нуля."}, status=400)
+
         data = serializer.validated_data
         user = request.user if request.user.is_authenticated else None
+        public = settings.PUBLIC_URL.rstrip("/")
 
         with transaction.atomic():
             order = Order.objects.create(
@@ -181,9 +182,7 @@ class CheckoutView(APIView):
                 comment=data.get("comment") or "",
                 total=total,
                 payment_method="card",
-                card_last4=payment["last4"],
-                card_brand=payment["brand"],
-                status=Order.Status.PAID,
+                status=Order.Status.PENDING,
                 offer_accepted=True,
             )
             OrderItem.objects.bulk_create(
@@ -203,14 +202,92 @@ class CheckoutView(APIView):
             )
             CartItem.objects.filter(id__in=[item.id for item in items]).delete()
 
-        order = Order.objects.prefetch_related("items").get(pk=order.id)
-        try:
-            notify_new_order(order)
-        except Exception:
-            logging.getLogger(__name__).exception("Telegram: заказ %s не отправлен", order.id)
+            order_number = f"rp-{order.id}-{uuid.uuid4().hex[:8]}"
+            return_url = f"{public}/order/{order.id}/pay"
+            fail_url = f"{public}/order/{order.id}/pay?failed=1"
+            try:
+                registered = register_order(
+                    amount_kopecks=amount_to_kopecks(total),
+                    order_number=order_number,
+                    return_url=return_url,
+                    fail_url=fail_url,
+                    description=f"Заказ №{order.id}",
+                )
+            except SberPaymentError as exc:
+                order.status = Order.Status.FAILED
+                order.save(update_fields=["status"])
+                logging.getLogger(__name__).exception(
+                    "Sber register failed for order %s", order.id
+                )
+                return Response({"detail": str(exc)}, status=502)
+
+            order.sber_order_id = registered["order_id"]
+            order.sber_order_number = order_number
+            order.save(update_fields=["sber_order_id", "sber_order_number"])
 
         request.session["last_order_id"] = order.id
-        return Response(OrderSerializer(order).data, status=201)
+        return Response(
+            {
+                "id": order.id,
+                "form_url": registered["form_url"],
+                "total": order.total,
+                "status": order.status,
+            },
+            status=201,
+        )
+
+
+class OrderConfirmView(APIView):
+    def post(self, request, pk):
+        order = Order.objects.filter(pk=pk).prefetch_related("items").first()
+        if not order:
+            return Response({"detail": "Заказ не найден."}, status=404)
+
+        if order.status == Order.Status.PAID:
+            return Response(OrderSerializer(order).data)
+
+        if not order.sber_order_id:
+            return Response({"detail": "У заказа нет платёжной сессии Сбера."}, status=400)
+
+        try:
+            status_info = get_order_status(order.sber_order_id)
+        except SberPaymentError as exc:
+            logging.getLogger(__name__).exception(
+                "Sber status failed for order %s", order.id
+            )
+            return Response({"detail": str(exc)}, status=502)
+
+        update_fields = []
+        if status_info.get("card_last4") and not order.card_last4:
+            order.card_last4 = status_info["card_last4"]
+            update_fields.append("card_last4")
+        if status_info.get("card_brand") and not order.card_brand:
+            order.card_brand = status_info["card_brand"]
+            update_fields.append("card_brand")
+
+        if status_info["is_paid"]:
+            was_unpaid = order.status != Order.Status.PAID
+            order.status = Order.Status.PAID
+            update_fields.append("status")
+            order.save(update_fields=update_fields)
+            if was_unpaid:
+                try:
+                    notify_new_order(order)
+                except Exception:
+                    logging.getLogger(__name__).exception(
+                        "Telegram: заказ %s не отправлен", order.id
+                    )
+            return Response(OrderSerializer(order).data)
+
+        if status_info["is_failed"]:
+            order.status = Order.Status.FAILED
+            update_fields.append("status")
+            order.save(update_fields=update_fields)
+            return Response(OrderSerializer(order).data)
+
+        if update_fields:
+            order.save(update_fields=update_fields)
+        return Response(OrderSerializer(order).data)
 
 
 class OrderDetailView(APIView):
