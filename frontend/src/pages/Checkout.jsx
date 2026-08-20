@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { api, money } from '../api'
+import { api } from '../api'
 import { useCart } from '../CartContext'
 import BankCard from '../components/BankCard'
 import PhoneField from '../components/PhoneField'
+import { useLocale } from '../i18n/LocaleContext'
+import { localizeCartItemName } from '../i18n/content'
 
 const initial = {
   full_name: '',
@@ -33,7 +35,8 @@ function formatExpiry(value) {
 }
 
 export default function Checkout() {
-  const { cart, refresh } = useCart()
+  const { cart, refresh, servicesById } = useCart()
+  const { t, money, lang } = useLocale()
   const navigate = useNavigate()
   const [form, setForm] = useState(initial)
   const [error, setError] = useState('')
@@ -52,22 +55,22 @@ export default function Checkout() {
     event.preventDefault()
     setError('')
     if (!phoneOk) {
-      setError('Введите действующий российский номер телефона.')
+      setError(t('checkout.err.phone'))
       return
     }
     const offer_accepted =
       form.consent_personal_data && form.consent_user_agreement && form.consent_offer
     if (!offer_accepted) {
-      setError('Необходимо отметить все согласия.')
+      setError(t('checkout.err.consents'))
       return
     }
     const pan = form.card_number.replace(/\D/g, '')
     if (pan.length < 13) {
-      setError('Введите номер карты полностью.')
+      setError(t('checkout.err.card'))
       return
     }
     if (!form.card_cvv) {
-      setError('Укажите CVV.')
+      setError(t('checkout.err.cvv'))
       return
     }
     setBusy(true)
@@ -101,10 +104,10 @@ export default function Checkout() {
   if (!cart.items.length) {
     return (
       <section className="section container">
-        <h1>Оформление заказа</h1>
-        <p>Сначала добавьте услуги в корзину.</p>
+        <h1>{t('checkout.title')}</h1>
+        <p>{t('checkout.empty')}</p>
         <Link to="/services" className="btn btn-gold" viewTransition>
-          К каталогу
+          {t('checkout.toCatalog')}
         </Link>
       </section>
     )
@@ -114,7 +117,7 @@ export default function Checkout() {
     <section className="section">
       <div className="container checkout-grid checkout-grid-stack">
         <aside className="summary">
-          <h3>Состав заказа</h3>
+          <h3>{t('checkout.summary')}</h3>
           <ul>
             {cart.items.map((item) => (
               <li key={item.id}>
@@ -136,41 +139,41 @@ export default function Checkout() {
                       strokeLinecap="round"
                     />
                   </svg>
-                  {item.item_name} × {item.quantity}
+                  {localizeCartItemName(item, lang, t, servicesById)} × {item.quantity}
                 </span>
                 <b>{money(item.line_total)}</b>
               </li>
             ))}
           </ul>
-          <p className="total">Итого: {money(cart.total)}</p>
+          <p className="total">{t('checkout.total', { amount: money(cart.total) })}</p>
         </aside>
 
         <form className="order-form" onSubmit={submit}>
           <div className="order-form-panel">
-            <h1>Оформление заказа</h1>
+            <h1>{t('checkout.title')}</h1>
             <label>
-              ФИО
+              {t('checkout.fullName')}
               <input required value={form.full_name} onChange={(e) => setField('full_name', e.target.value)} />
             </label>
             <div className="two">
               <label>
-                Email
+                {t('checkout.email')}
                 <input type="email" required value={form.email} onChange={(e) => setField('email', e.target.value)} />
                 <span className="check check-inline">
                   <input
                     type="checkbox"
-                  checked={form.decline_receipts}
-                  onChange={(e) => {
-                    const checked = e.target.checked
-                    setField('decline_receipts', checked)
-                    setField('decline_marketing', checked)
-                  }}
+                    checked={form.decline_receipts}
+                    onChange={(e) => {
+                      const checked = e.target.checked
+                      setField('decline_receipts', checked)
+                      setField('decline_marketing', checked)
+                    }}
                   />
-                <span>Отказываюсь от получения чеков и рекламных рассылок</span>
+                  <span>{t('checkout.declineMail')}</span>
                 </span>
               </label>
               <label>
-                Телефон
+                {t('checkout.phone')}
                 <PhoneField
                   value={form.phone}
                   onChange={(phone) => setField('phone', phone)}
@@ -181,7 +184,7 @@ export default function Checkout() {
           </div>
 
           <div className="card-box">
-            <div className="card-box-title">Оплата</div>
+            <div className="card-box-title">{t('checkout.payment')}</div>
             <BankCard form={form} setField={setField} />
             <label className="check">
               <input
@@ -190,13 +193,13 @@ export default function Checkout() {
                 onChange={(e) => setField('consent_personal_data', e.target.checked)}
               />
               <span>
-                Согласие на{' '}
+                {t('checkout.consent.pdPrefix')}{' '}
                 <a
                   href="https://www.consultant.ru/document/cons_doc_LAW_61801/"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  обработку персональных данных
+                  {t('checkout.consent.pd')}
                 </a>
               </span>
             </label>
@@ -207,9 +210,9 @@ export default function Checkout() {
                 onChange={(e) => setField('consent_user_agreement', e.target.checked)}
               />
               <span>
-                Согласие с{' '}
+                {t('checkout.consent.rulesPrefix')}{' '}
                 <Link to="/rules" viewTransition>
-                  пользовательским соглашением
+                  {t('checkout.consent.rules')}
                 </Link>
               </span>
             </label>
@@ -220,9 +223,9 @@ export default function Checkout() {
                 onChange={(e) => setField('consent_offer', e.target.checked)}
               />
               <span>
-                Согласие с{' '}
+                {t('checkout.consent.offerPrefix')}{' '}
                 <Link to="/offer" viewTransition>
-                  офертой
+                  {t('checkout.consent.offer')}
                 </Link>
               </span>
             </label>
@@ -230,7 +233,7 @@ export default function Checkout() {
 
           {error && <p className="form-error">{error}</p>}
           <button type="submit" className="btn btn-gold" disabled={busy}>
-            {busy ? 'Обрабатываем платёж…' : `Оплатить ${money(cart.total)}`}
+            {busy ? t('checkout.paying') : t('checkout.pay', { amount: money(cart.total) })}
           </button>
         </form>
       </div>

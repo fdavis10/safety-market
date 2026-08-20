@@ -7,52 +7,53 @@ import searchImg from '../assets/activity/searching.png'
 import auditImg from '../assets/activity/auditdocuments.png'
 import logisticImg from '../assets/activity/world_logistic.png'
 import adaptImg from '../assets/activity/adaptaion.png'
+import { useLocale } from '../i18n/LocaleContext'
 
 const ACTIVITY_IMAGES = [searchImg, auditImg, logisticImg, adaptImg]
 
 export default function Home() {
   const [site, setSite] = useState(null)
+  const { t, localizeSite } = useLocale()
 
   useEffect(() => {
     api('/api/site/').then(setSite)
   }, [])
 
-  if (!site) return <div className="container section">Загружаем агентство…</div>
+  if (!site) return <div className="container section">{t('home.loading')}</div>
+
+  const localized = localizeSite(site)
 
   return (
     <>
       <section className="hero">
         <div className="container hero-grid">
           <div>
-            <p className="eyebrow">Кадровое агентство</p>
-            <h1>
-              {site.name}: {site.tagline}
-            </h1>
-            <p className="lead">{site.description}</p>
+            <h1>{localized.tagline}</h1>
+            <p className="lead">{localized.description}</p>
             <div className="hero-actions">
               <Link to="/services" className="btn btn-gold" viewTransition>
-                Заказать услугу
+                {t('home.orderService')}
               </Link>
               <Link to="/packages" className="btn btn-ghost" viewTransition>
-                Пакеты под ключ
+                {t('home.packages')}
               </Link>
             </div>
           </div>
           <div className="hero-panel">
             <Logo />
-            <blockquote>{site.mission}</blockquote>
+            <blockquote>{localized.mission}</blockquote>
             <div className="hero-stats">
               <div>
                 <b>13</b>
-                <span>услуг в каталоге</span>
+                <span>{t('home.stats.services')}</span>
               </div>
               <div>
                 <b>3</b>
-                <span>пакета под ключ</span>
+                <span>{t('home.stats.packages')}</span>
               </div>
               <div>
                 <b>24/7</b>
-                <span>консьерж после въезда</span>
+                <span>{t('home.stats.concierge')}</span>
               </div>
             </div>
           </div>
@@ -61,9 +62,9 @@ export default function Home() {
 
       <section className="section">
         <div className="container">
-          <h2>Чем занимается агентство</h2>
+          <h2>{t('home.activityTitle')}</h2>
           <div className="activity-grid">
-            {site.activity.map((item, index) => (
+            {localized.activity.map((item, index) => (
               <article key={item} className={`activity-card ${ACTIVITY_IMAGES[index] ? 'has-cover' : ''}`}>
                 {ACTIVITY_IMAGES[index] ? (
                   <img className="cover" src={ACTIVITY_IMAGES[index]} alt="" />
@@ -74,28 +75,6 @@ export default function Home() {
               </article>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="section alt">
-        <div className="container split">
-          <div>
-            <h2>Три контура сопровождения</h2>
-          </div>
-          <ol className="steps">
-            <li>
-              <strong>Документы, визы и гарантии</strong>
-              <span className="step-desc">Аудит, легализация, приглашение и страхование рисков.</span>
-            </li>
-            <li>
-              <strong>Международная логистика</strong>
-              <span className="step-desc">Стандартный или мультимодальный маршрут и обеспечение в пути.</span>
-            </li>
-            <li>
-              <strong>Сопровождение в РФ</strong>
-              <span className="step-desc">Жилье, миграция, обучение языку, консьерж и прочее</span>
-            </li>
-          </ol>
         </div>
       </section>
     </>

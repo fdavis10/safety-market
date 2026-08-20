@@ -1,37 +1,39 @@
 import { Link } from 'react-router-dom'
 import Logo from './Logo'
+import { useLocale } from '../i18n/LocaleContext'
 
 export default function Footer() {
+  const { t } = useLocale()
   return (
     <footer className="site-footer">
       <div className="container footer-grid">
         <div>
           <Logo />
-          <p>Кадровое агенство по международному подбору персонала</p>
+          <p>{t('footer.tagline')}</p>
         </div>
         <div>
-          <h4>Разделы</h4>
+          <h4>{t('footer.sections')}</h4>
           <Link to="/services" viewTransition>
-            Каталог услуг
+            {t('catalog.title')}
           </Link>
           <Link to="/packages" viewTransition>
-            Пакеты под ключ
+            {t('nav.packages')}
           </Link>
           <Link to="/cart" viewTransition>
-            Корзина
+            {t('nav.cart')}
           </Link>
         </div>
         <div>
-          <h4>Документы</h4>
+          <h4>{t('footer.docs')}</h4>
           <Link to="/rules" viewTransition>
-            Правила
+            {t('nav.rules')}
           </Link>
           <Link to="/offer" viewTransition>
-            Публичная оферта
+            {t('docs.offer')}
           </Link>
         </div>
       </div>
-      <div className="container footer-copy">2026. ООО "Р ПЛЮС"</div>
+      <div className="container footer-copy">{t('footer.copy')}</div>
     </footer>
   )
 }

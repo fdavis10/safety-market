@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { api, money } from '../api'
+import { api } from '../api'
+import { useLocale } from '../i18n/LocaleContext'
 
 export default function OrderSuccess() {
   const { id } = useParams()
   const [order, setOrder] = useState(null)
   const [error, setError] = useState('')
+  const { t, money } = useLocale()
 
   useEffect(() => {
     api(`/api/orders/${id}/`)
@@ -14,15 +16,22 @@ export default function OrderSuccess() {
   }, [id])
 
   if (error) return <section className="section container">{error}</section>
-  if (!order) return <section className="section container">Проверяем оплату…</section>
+  if (!order) return <section className="section container">{t('order.checking')}</section>
 
   return (
     <section className="section">
       <div className="container success">
-        <p className="eyebrow">Заказ №{order.id}</p>
-        <h1>Оплата прошла</h1>
+        <p className="eyebrow">
+          {t('cart.eyebrow')} №{order.id}
+        </p>
+        <h1>{t('order.paid')}</h1>
         <p>
-          {order.full_name}, гражданство: {order.citizenship}. Списано с {order.card_brand} •••• {order.card_last4}.
+          {t('order.meta', {
+            name: order.full_name,
+            citizenship: order.citizenship,
+            brand: order.card_brand,
+            last4: order.card_last4,
+          })}
         </p>
         <ul>
           {order.items.map((item) => (
@@ -33,7 +42,7 @@ export default function OrderSuccess() {
         </ul>
         <p className="total">{money(order.total)}</p>
         <Link to="/" className="btn btn-navy" viewTransition>
-          На главную
+          {t('order.home')}
         </Link>
       </div>
     </section>

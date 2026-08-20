@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
 import { isValidPhoneNumber } from 'libphonenumber-js'
 import { flagUrl } from '../data/countries'
+import { useLocale } from '../i18n/LocaleContext'
 
 const COUNTRY = { code: 'RU', name: 'Россия', dial: '7' }
 
 export default function PhoneField({ value, onChange, onValidity }) {
+  const { t } = useLocale()
   const [national, setNational] = useState('')
   const [touched, setTouched] = useState(false)
 
@@ -52,7 +54,7 @@ export default function PhoneField({ value, onChange, onValidity }) {
         onBlur={() => setTouched(true)}
       />
       {touched && national && !valid && (
-        <p className="field-hint">Введите действующий номер для России.</p>
+        <p className="field-hint">{t('checkout.err.phoneRu')}</p>
       )}
     </div>
   )

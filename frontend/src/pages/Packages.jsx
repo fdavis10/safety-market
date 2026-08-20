@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
 import PackageCard from '../components/PackageCard'
+import { useLocale } from '../i18n/LocaleContext'
 
 export default function Packages() {
   const [packages, setPackages] = useState([])
+  const { t, localizePackage } = useLocale()
 
   useEffect(() => {
     api('/api/packages/').then(setPackages)
@@ -12,11 +14,11 @@ export default function Packages() {
   return (
     <section className="section">
       <div className="container">
-        <p className="eyebrow">Готовые решения</p>
-        <h1>Пакеты под ключ</h1>
+        <p className="eyebrow">{t('packages.eyebrow')}</p>
+        <h1>{t('packages.title')}</h1>
         <div className="cards-3 packages">
           {packages.map((pack) => (
-            <PackageCard key={pack.id} pack={pack} />
+            <PackageCard key={pack.id} pack={localizePackage(pack)} />
           ))}
         </div>
       </div>

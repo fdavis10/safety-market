@@ -1,3 +1,5 @@
+import { useLocale } from '../i18n/LocaleContext'
+
 function brandFromNumber(number) {
   const digits = number.replace(/\s/g, '')
   if (digits.startsWith('4')) return 'Visa'
@@ -9,6 +11,7 @@ function brandFromNumber(number) {
 
 export default function BankCard({ form, setField }) {
   const brand = brandFromNumber(form.card_number)
+  const { t } = useLocale()
 
   return (
     <div className="bank-card-wrap">
@@ -20,7 +23,7 @@ export default function BankCard({ form, setField }) {
               <span className="bank-brand">{brand}</span>
             </div>
             <label className="bank-number">
-              <span className="sr-only">Номер карты</span>
+              <span className="sr-only">{t('bank.number')}</span>
               <input
                 required
                 inputMode="numeric"
@@ -32,7 +35,7 @@ export default function BankCard({ form, setField }) {
             </label>
             <div className="bank-front-row">
               <label>
-                <span>Держатель</span>
+                <span>{t('bank.holder')}</span>
                 <input
                   required
                   autoComplete="cc-name"
@@ -42,7 +45,7 @@ export default function BankCard({ form, setField }) {
                 />
               </label>
               <label className="bank-expiry">
-                <span>Срок</span>
+                <span>{t('bank.expiry')}</span>
                 <input
                   required
                   placeholder="MM/YY"
@@ -52,7 +55,7 @@ export default function BankCard({ form, setField }) {
                 />
               </label>
               <label className="bank-cvv">
-                <span>CVV</span>
+                <span>{t('bank.cvv')}</span>
                 <input
                   required
                   inputMode="numeric"
@@ -64,7 +67,7 @@ export default function BankCard({ form, setField }) {
                 />
               </label>
             </div>
-            <p className="bank-back-copy">Мы не сохраняем полный номер карты и CVV после оплаты.</p>
+            <p className="bank-back-copy">{t('bank.note')}</p>
           </div>
         </div>
       </div>

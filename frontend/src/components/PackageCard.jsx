@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
-import { money } from '../api'
 import { useCart } from '../CartContext'
 import { packageImage } from '../data/packageImages'
+import { useLocale } from '../i18n/LocaleContext'
 
 export default function PackageCard({ pack }) {
   const { addPackage } = useCart()
+  const { t, money } = useLocale()
   const cover = packageImage(pack.slug)
   const [route, setRoute] = useState('standard')
 
@@ -22,13 +23,10 @@ export default function PackageCard({ pack }) {
       if (service.slug !== 'logistics-standard') return service
       return {
         ...service,
-        name:
-          route === 'multimodal'
-            ? 'Логистика: Сложный мультимодальный маршрут'
-            : 'Логистика: Стандартный маршрут (Прямой или 1 пересадка)',
+        name: route === 'multimodal' ? t('logistics.complex') : t('logistics.standard'),
       }
     })
-  }, [pack.services, route])
+  }, [pack.services, route, t])
 
   return (
     <article className="package-card">
@@ -41,11 +39,11 @@ export default function PackageCard({ pack }) {
           <li key={service.id}>{service.name}</li>
         ))}
       </ul>
-      <p className="package-route-label">Выберите тип маршрута</p>
+      <p className="package-route-label">{t('route.label')}</p>
       <div
         className={`package-route-switch ${route === 'multimodal' ? 'is-multimodal' : 'is-standard'}`}
         role="group"
-        aria-label="Тип маршрута"
+        aria-label={t('route.label')}
       >
         <span className="package-route-thumb" aria-hidden="true" />
         <button
@@ -53,22 +51,22 @@ export default function PackageCard({ pack }) {
           className={route === 'standard' ? 'on' : ''}
           onClick={() => setRoute('standard')}
         >
-          <span className="package-route-title">Стандартный</span>
-          <span className="package-route-hint">прямой / 1 пересадка</span>
+          <span className="package-route-title">{t('route.standard')}</span>
+          <span className="package-route-hint">{t('route.standard.hint')}</span>
         </button>
         <button
           type="button"
           className={route === 'multimodal' ? 'on' : ''}
           onClick={() => setRoute('multimodal')}
         >
-          <span className="package-route-title">Сложный</span>
-          <span className="package-route-hint">мультимодальный</span>
+          <span className="package-route-title">{t('route.complex')}</span>
+          <span className="package-route-hint">{t('route.complex.hint')}</span>
         </button>
       </div>
       <div className="card-footer">
         <strong>{money(price)}</strong>
         <button type="button" className="btn btn-gold" onClick={() => addPackage(pack.id, route)}>
-          В корзину
+          {t('cart.addPackage')}
         </button>
       </div>
     </article>

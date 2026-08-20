@@ -1,37 +1,27 @@
 import { useState } from 'react'
-import { money } from '../api'
 import { useCart } from '../CartContext'
 import { serviceImage } from '../data/serviceImages'
+import { useLocale } from '../i18n/LocaleContext'
 
-const PAYMENT_OPTIONS = [
-  { id: '50', title: '50%', hint: 'предоплата' },
-  { id: '90', title: '90%', hint: 'предоплата' },
-  { id: 'post', title: 'Постоплата', hint: 'без аванса' },
-]
-
-const UNIFIED_PAYMENT_TOAST = 'Выберите единый тип оплаты на всех услугах'
-
-function priceForPayment(service, paymentType) {
-  const prices = service.prices || {}
-  const value = prices[paymentType]
-  if (value != null && value !== '') return Number(value)
-  return Number(service.price)
-}
+const PAYMENT_IDS = ['50', '90', 'post']
 
 export default function ServiceCard({ service }) {
   const { addService, cart, servicePayment, setServicePayment, setToast } = useCart()
+  const { t, money } = useLocale()
   const cover = serviceImage(service.slug)
   const [localPayment, setLocalPayment] = useState(null)
 
   const servicesInCart = cart.items.filter((item) => item.kind === 'service').length
   const unlocked = Boolean(localPayment)
-  const displayPrice = unlocked ? priceForPayment(service, localPayment) : null
+  const displayPrice = unlocked
+    ? Number((service.prices && service.prices[localPayment]) ?? service.price)
+    : null
 
   async function handleAdd() {
     if (!localPayment) return
 
     if (servicesInCart >= 1 && servicePayment && localPayment !== servicePayment) {
-      setToast(UNIFIED_PAYMENT_TOAST)
+      setToast(t('pay.unified'))
       return
     }
 
@@ -46,22 +36,22 @@ export default function ServiceCard({ service }) {
         <div className="card-kicker">{service.short_label || service.category_label}</div>
         <h3>{service.name}</h3>
         <p>{service.description}</p>
-        <p className="service-pay-label">Выберите тип оплаты</p>
+        <p className="service-pay-label">{t('pay.label')}</p>
         <div
           className={`service-pay-switch ${unlocked ? `is-${localPayment}` : 'is-empty'}${servicePayment ? ' is-locked' : ''}`}
           role="group"
-          aria-label="Тип оплаты"
+          aria-label={t('pay.label')}
         >
           <span className="service-pay-thumb" aria-hidden="true" />
-          {PAYMENT_OPTIONS.map((option) => (
+          {PAYMENT_IDS.map((id) => (
             <button
-              key={option.id}
+              key={id}
               type="button"
-              className={unlocked && localPayment === option.id ? 'on' : ''}
-              onClick={() => setLocalPayment(option.id)}
+              className={unlocked && localPayment === id ? 'on' : ''}
+              onClick={() => setLocalPayment(id)}
             >
-              <span className="service-pay-title">{option.title}</span>
-              <span className="service-pay-hint">{option.hint}</span>
+              <span className="service-pay-title">{t(`pay.${id}`)}</span>
+              <span className="service-pay-hint">{t(`pay.${id}.hint`)}</span>
             </button>
           ))}
         </div>
@@ -75,7 +65,7 @@ export default function ServiceCard({ service }) {
             disabled={!unlocked}
             onClick={handleAdd}
           >
-            В корзину
+            {t('cart.addService')}
           </button>
         </div>
       </div>

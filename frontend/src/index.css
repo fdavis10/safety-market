@@ -29,6 +29,7 @@ body,
 
 body {
   margin: 0;
+  overflow-x: clip;
   color: var(--text);
   background:
     radial-gradient(1200px 500px at 90% -10%, rgba(201, 162, 74, 0.18), transparent 50%),
@@ -214,6 +215,49 @@ main {
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.lang-switch button {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: rgba(244, 234, 215, 0.55);
+  cursor: pointer;
+  padding: 4px 2px;
+  transition: color 0.2s ease;
+}
+
+.lang-switch button.on,
+.lang-switch button:hover {
+  color: var(--gold-2);
+}
+
+.lang-switch-sep {
+  color: rgba(244, 234, 215, 0.35);
+  font-size: 12px;
+  font-weight: 700;
+  user-select: none;
+}
+
+.header-mobile-tools {
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+
+.lang-switch-header {
+  margin-left: auto;
+  margin-right: 8px;
 }
 
 .site-header .btn-gold {
@@ -437,11 +481,22 @@ main {
   color: #fff8ea;
 }
 
+.hero h1 {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
 .hero-grid {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   gap: 36px;
   align-items: center;
+}
+
+.hero-grid > * {
+  min-width: 0;
 }
 
 .hero-actions {
@@ -1885,6 +1940,14 @@ html:active-view-transition .page-enter {
     grid-template-columns: 1fr auto;
   }
 
+  .header-mobile-tools {
+    display: inline-flex;
+  }
+
+  .lang-switch-desktop {
+    display: none;
+  }
+
   .nav-toggle {
     display: block;
   }
@@ -1923,6 +1986,17 @@ html:active-view-transition .page-enter {
 
   .hero {
     background: linear-gradient(180deg, var(--navy-deep), #16355a);
+    padding: 48px 0 56px;
+    overflow-x: clip;
+  }
+
+  .hero h1 {
+    font-size: clamp(24px, 7vw, 34px);
+    line-height: 1.2;
+  }
+
+  .hero .lead {
+    font-size: 16px;
   }
 
   .cart-list li {
