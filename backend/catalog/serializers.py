@@ -14,6 +14,7 @@ class ServiceSerializer(serializers.ModelSerializer):
             "slug",
             "description",
             "price",
+            "prices",
             "category",
             "category_label",
             "short_label",
@@ -22,6 +23,7 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 class PackageSerializer(serializers.ModelSerializer):
     services = ServiceSerializer(many=True, read_only=True)
+    logistics_upgrade = serializers.SerializerMethodField()
 
     class Meta:
         model = Package
@@ -31,8 +33,15 @@ class PackageSerializer(serializers.ModelSerializer):
             "slug",
             "description",
             "price",
+            "price_complex",
             "payment_terms",
             "payment_badges",
             "is_featured",
             "services",
+            "logistics_upgrade",
         )
+
+    def get_logistics_upgrade(self, obj):
+        if obj.price_complex is None:
+            return 0
+        return obj.price_complex - obj.price

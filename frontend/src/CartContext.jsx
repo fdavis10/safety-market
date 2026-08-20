@@ -7,6 +7,7 @@ export function CartProvider({ children }) {
   const [cart, setCart] = useState({ items: [], total: 0, count: 0 })
   const [packages, setPackages] = useState([])
   const [toast, setToast] = useState('')
+  const [servicePayment, setServicePayment] = useState(null)
 
   async function refresh() {
     const data = await api('/api/cart/')
@@ -31,12 +32,21 @@ export function CartProvider({ children }) {
     return () => clearTimeout(timer)
   }, [toast])
 
+  useEffect(() => {
+    if (!cart.items.some((item) => item.kind === 'service')) {
+      setServicePayment(null)
+    }
+  }, [cart])
+
   const value = useMemo(
     () => ({
       cart,
       toast,
+      setToast,
+      servicePayment,
+      setServicePayment,
       refresh,
-      async addService(service) {
+      async addService(service, paymentType = '50') {
         const serviceId = typeof service === 'object' ? service.id : service
         const existingPackage = packages.find((pack) => {
           if (!cart.items.some((item) => item.kind === 'package' && item.package === pack.id)) return false
@@ -47,14 +57,20 @@ export function CartProvider({ children }) {
           setToast(`${serviceName} уже входит в пакет «${existingPackage.name}» в корзине`)
           return cart
         }
-        const data = await api('/api/cart/', { method: 'POST', body: { service: serviceId, quantity: 1 } })
+        const data = await api('/api/cart/', {
+          method: 'POST',
+          body: { service: serviceId, quantity: 1, payment_type: paymentType },
+        })
         setCart(data)
         setToast('Услуга добавлена в корзину')
         return data
       },
-      async addPackage(packageId) {
+      async addPackage(packageId, logisticsRoute = 'standard') {
         try {
-          const data = await api(`/api/cart/packages/${packageId}/`, { method: 'POST' })
+          const data = await api(`/api/cart/packages/${packageId}/`, {
+            method: 'POST',
+            body: { logistics_route: logisticsRoute },
+          })
           setCart(data)
           setToast('Пакет добавлен в корзину')
           return data
@@ -67,20 +83,27 @@ export function CartProvider({ children }) {
       async updateItem(id, quantity) {
         const data = await api(`/api/cart/items/${id}/`, { method: 'PATCH', body: { quantity } })
         setCart(data)
+        if (!data.items.some((item) => item.kind === 'service')) {
+          setServicePayment(null)
+        }
         return data
       },
       async removeItem(id) {
         const data = await api(`/api/cart/items/${id}/`, { method: 'DELETE' })
         setCart(data)
+        if (!data.items.some((item) => item.kind === 'service')) {
+          setServicePayment(null)
+        }
         return data
       },
       async clear() {
         const data = await api('/api/cart/', { method: 'DELETE' })
         setCart(data)
+        setServicePayment(null)
         return data
       },
     }),
-    [cart, packages, toast],
+    [cart, packages, toast, servicePayment],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

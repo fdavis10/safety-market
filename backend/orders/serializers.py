@@ -15,7 +15,19 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CartItem
-        fields = ("id", "kind", "service", "package", "item_name", "quantity", "price", "line_total", "category")
+        fields = (
+            "id",
+            "kind",
+            "service",
+            "package",
+            "item_name",
+            "quantity",
+            "price",
+            "line_total",
+            "category",
+            "logistics_route",
+            "payment_type",
+        )
 
     def get_item_name(self, obj):
         return obj.title
@@ -36,6 +48,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 class CartWriteSerializer(serializers.Serializer):
     service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.filter(is_active=True))
     quantity = serializers.IntegerField(min_value=1, default=1)
+    payment_type = serializers.ChoiceField(choices=["50", "90", "post"], default="50")
 
 
 class CheckoutSerializer(serializers.Serializer):

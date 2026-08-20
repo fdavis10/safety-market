@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="container footer-grid">
         <div>
           <Logo />
-          <p>Кадровое агентство международного подбора.</p>
+          <p>Кадровое агенство по международному подбору персонала</p>
         </div>
         <div>
           <h4>Разделы</h4>
@@ -31,6 +31,7 @@ export default function Footer() {
           </Link>
         </div>
       </div>
+      <div className="container footer-copy">2026. ООО "Р ПЛЮС"</div>
     </footer>
   )
 }

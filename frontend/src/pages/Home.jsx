@@ -26,7 +26,7 @@ export default function Home() {
           <div>
             <p className="eyebrow">Кадровое агентство</p>
             <h1>
-              {site.name}: {site.tagline.toLowerCase()}
+              {site.name}: {site.tagline}
             </h1>
             <p className="lead">{site.description}</p>
             <div className="hero-actions">
@@ -43,7 +43,7 @@ export default function Home() {
             <blockquote>{site.mission}</blockquote>
             <div className="hero-stats">
               <div>
-                <b>12</b>
+                <b>13</b>
                 <span>услуг в каталоге</span>
               </div>
               <div>
@@ -81,10 +81,6 @@ export default function Home() {
         <div className="container split">
           <div>
             <h2>Три контура сопровождения</h2>
-            <p>
-              От допуска документов до адаптации на объекте: закрываем юридический, логистический и бытовой контур,
-              чтобы работодатель получил готового сотрудника.
-            </p>
           </div>
           <ol className="steps">
             <li>
@@ -97,7 +93,7 @@ export default function Home() {
             </li>
             <li>
               <strong>Сопровождение в РФ</strong>
-              <span className="step-desc">Жильё, миграция, язык, экипировка и консьерж.</span>
+              <span className="step-desc">Жилье, миграция, обучение языку, консьерж и прочее</span>
             </li>
           </ol>
         </div>

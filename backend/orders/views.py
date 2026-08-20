@@ -5,7 +5,7 @@ from django.db import transaction
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from catalog.models import Package
+from catalog.models import Package, Service
 from .models import CartItem, Order, OrderItem
 from .payments import charge_card
 from .telegram import notify_new_order
@@ -41,6 +41,17 @@ def cart_payload(request):
     }
 
 
+def payment_type_for_cart_item(item):
+    if item.service_id:
+        return item.payment_type or "50"
+    terms = (item.package.payment_terms or "").lower()
+    if "90" in terms:
+        return "90"
+    if "пост" in terms:
+        return "post"
+    return "50"
+
+
 class CartView(APIView):
     def get(self, request):
         ensure_session(request)
@@ -52,8 +63,11 @@ class CartView(APIView):
         session_key = ensure_session(request)
         service = serializer.validated_data["service"]
         quantity = serializer.validated_data["quantity"]
+        payment_type = serializer.validated_data.get("payment_type", "50")
         user = request.user if request.user.is_authenticated else None
         package_item = cart_qs(request).filter(package__services=service).first()
+        if not package_item and service.slug in {"logistics-standard", "logistics-multimodal"}:
+            package_item = cart_qs(request).filter(package__isnull=False).first()
         if package_item:
             return Response(
                 {"detail": f"Услуга уже входит в пакет «{package_item.package.name}» в корзине."},
@@ -63,13 +77,14 @@ class CartView(APIView):
             session_key=session_key,
             service=service,
             package=None,
-            defaults={"quantity": quantity, "user": user},
+            defaults={"quantity": quantity, "user": user, "payment_type": payment_type},
         )
         if not created:
             item.quantity += quantity
+            item.payment_type = payment_type
             if user and not item.user:
                 item.user = user
-            item.save(update_fields=["quantity", "user"])
+            item.save(update_fields=["quantity", "user", "payment_type"])
         return Response(cart_payload(request), status=201)
 
     def delete(self, request):
@@ -104,10 +119,18 @@ class PackageCartView(APIView):
         if not package:
             return Response({"detail": "Пакет не найден."}, status=404)
 
+        logistics_route = request.data.get("logistics_route", "standard")
+        if logistics_route not in {"standard", "multimodal"}:
+            return Response({"detail": "Некорректный тип маршрута."}, status=400)
+
         # Если в корзине уже есть отдельные услуги из этого пакета,
         # не позволяем добавить пакет и эти услуги вместе.
         service_ids = list(package.services.values_list("id", flat=True))
-        existing_service_item = cart_qs(request).filter(service_id__in=service_ids).first()
+        logistics_ids = list(
+            Service.objects.filter(slug__in=["logistics-standard", "logistics-multimodal"]).values_list("id", flat=True)
+        )
+        conflict_ids = set(service_ids) | set(logistics_ids)
+        existing_service_item = cart_qs(request).filter(service_id__in=conflict_ids).first()
         if existing_service_item and existing_service_item.service_id:
             service_name = existing_service_item.service.name if existing_service_item.service else "Эта услуга"
             return Response(
@@ -120,13 +143,14 @@ class PackageCartView(APIView):
             session_key=session_key,
             package=package,
             service=None,
-            defaults={"quantity": 1, "user": user},
+            defaults={"quantity": 1, "user": user, "logistics_route": logistics_route},
         )
         if not created:
             item.quantity += 1
+            item.logistics_route = logistics_route
             if user and not item.user:
                 item.user = user
-            item.save(update_fields=["quantity", "user"])
+            item.save(update_fields=["quantity", "user", "logistics_route"])
         return Response(cart_payload(request), status=201)
 
 
@@ -169,11 +193,11 @@ class CheckoutView(APIView):
                         service=service,
                         name=service.name,
                         quantity=item.quantity,
-                        price=service.price,
+                        price=service.price_for(payment_type_for_cart_item(item)),
                     )
                     for item in items
                     for service in (
-                        item.package.services.filter(is_active=True) if item.package_id else [item.service]
+                        item.package_services_resolved() if item.package_id else [item.service]
                     )
                 ]
             )

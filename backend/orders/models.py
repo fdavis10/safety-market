@@ -32,6 +32,27 @@ class CartItem(models.Model):
         blank=True,
     )
     quantity = models.PositiveIntegerField("количество", default=1)
+    logistics_route = models.CharField(
+        "маршрут логистики",
+        max_length=32,
+        choices=[
+            ("standard", "Стандартный маршрут"),
+            ("multimodal", "Сложный маршрут"),
+        ],
+        default="standard",
+        blank=True,
+    )
+    payment_type = models.CharField(
+        "тип оплаты",
+        max_length=16,
+        choices=[
+            ("50", "50% предоплата"),
+            ("90", "90% предоплата"),
+            ("post", "Постоплата"),
+        ],
+        default="50",
+        blank=True,
+    )
 
     class Meta:
         verbose_name = "позиция корзины"
@@ -66,13 +87,31 @@ class CartItem(models.Model):
     @property
     def unit_price(self):
         if self.package_id:
-            return self.package.price
-        return self.service.price
+            return self.package.price_for_route(self.logistics_route or "standard")
+        payment = self.payment_type or "50"
+        return self.service.price_for(payment)
+
+    def package_services_resolved(self):
+        if not self.package_id:
+            return [self.service] if self.service_id else []
+        services = list(self.package.services.filter(is_active=True))
+        standard = Service.objects.filter(slug="logistics-standard", is_active=True).first()
+        multimodal = Service.objects.filter(slug="logistics-multimodal", is_active=True).first()
+        if self.logistics_route == "multimodal" and multimodal:
+            services = [s for s in services if s.slug != "logistics-standard"]
+            if not any(s.slug == "logistics-multimodal" for s in services):
+                services.append(multimodal)
+        elif standard:
+            services = [s for s in services if s.slug != "logistics-multimodal"]
+            if not any(s.slug == "logistics-standard" for s in services):
+                services.append(standard)
+        return services
 
     @property
     def title(self):
         if self.package_id:
-            return self.package.name
+            route = "Сложный маршрут" if self.logistics_route == "multimodal" else "Стандартный маршрут"
+            return f"{self.package.name} · {route}"
         return self.service.name
 
 

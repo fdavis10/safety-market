@@ -14,10 +14,6 @@ export default function Packages() {
       <div className="container">
         <p className="eyebrow">Готовые решения</p>
         <h1>Пакеты под ключ</h1>
-        <p className="lead narrow">
-          Собрали маршруты под разные задачи работодателя. Ярлыки показывают условия оплаты: только карта, предоплата
-          или рассрочка платежами.
-        </p>
         <div className="cards-3 packages">
           {packages.map((pack) => (
             <PackageCard key={pack.id} pack={pack} />
