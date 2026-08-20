@@ -73,12 +73,12 @@ export const messages = {
     'checkout.declineMail': 'Отказываюсь от получения чеков и рекламных рассылок',
     'checkout.payment': 'Оплата',
     'checkout.bankRedirect':
-      'После нажатия «Оплатить» вы перейдёте на защищённую страницу банка Сбер для ввода данных карты.',
+      'После нажатия «Оплатить» вы перейдёте на защищенную страницу ПАО «Сбербанк».',
     'checkout.consent.pd': 'обработку персональных данных',
     'checkout.consent.pdPrefix': 'Согласие на',
     'checkout.consent.rules': 'пользовательским соглашением',
     'checkout.consent.rulesPrefix': 'Согласие с',
-    'checkout.consent.offer': 'офертой',
+    'checkout.consent.offer': 'публичной офертой',
     'checkout.consent.offerPrefix': 'Согласие с',
     'checkout.pay': 'Оплатить {amount}',
     'checkout.paying': 'Обрабатываем платёж…',
@@ -186,7 +186,7 @@ export const messages = {
     'checkout.declineMail': 'I decline receipts and marketing emails',
     'checkout.payment': 'Payment',
     'checkout.bankRedirect':
-      'After you click Pay, you will be redirected to Sber’s secure payment page to enter your card details.',
+      'After you click Pay, you will be redirected to the secure page of PJSC Sberbank.',
     'checkout.consent.pd': 'personal data processing',
     'checkout.consent.pdPrefix': 'I consent to',
     'checkout.consent.rules': 'the user agreement',
