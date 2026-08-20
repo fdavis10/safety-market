@@ -19,7 +19,7 @@ export default function Home() {
     api('/api/site/').then(setSite)
   }, [])
 
-  if (!site) return <div className="container section">{t('home.loading')}</div>
+  if (!site) return null
 
   const localized = localizeSite(site)
 
