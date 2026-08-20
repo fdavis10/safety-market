@@ -33,7 +33,6 @@ export default function ServiceCard({ service }) {
     <article className={`service-card ${cover ? 'has-cover' : ''}`}>
       {cover && <img className="cover" src={cover} alt="" />}
       <div className="service-body">
-        <div className="card-kicker">{service.short_label || service.category_label}</div>
         <h3>{service.name}</h3>
         <p>{service.description}</p>
         <p className="service-pay-label">{t('pay.label')}</p>
