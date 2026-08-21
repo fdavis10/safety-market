@@ -7,8 +7,8 @@ const PAYMENT_IDS = ['50', '90', 'post']
 
 export default function ServiceCard({ service }) {
   const { addService, cart, servicePayment, setServicePayment, setToast } = useCart()
-  const { t, money } = useLocale()
-  const cover = serviceImage(service.slug)
+  const { t, money, lang } = useLocale()
+  const cover = serviceImage(service.slug, lang)
   const [localPayment, setLocalPayment] = useState(null)
 
   const servicesInCart = cart.items.filter((item) => item.kind === 'service').length
