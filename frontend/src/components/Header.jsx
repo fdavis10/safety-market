@@ -68,6 +68,9 @@ export default function Header() {
             <NavLink to="/offer" viewTransition onClick={close}>
               {t('nav.offer')}
             </NavLink>
+            <NavLink to="/privacy" viewTransition onClick={close}>
+              {t('nav.privacy')}
+            </NavLink>
           </nav>
           <div className="header-actions">
             <LangSwitch className="lang-switch-desktop" />

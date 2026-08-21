@@ -176,7 +176,8 @@ main {
 
 .nav {
   display: flex;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 12px 14px;
   justify-content: center;
 }
 
@@ -186,6 +187,8 @@ main {
   text-decoration: none;
   font-weight: 600;
   padding: 4px 0;
+  font-size: 0.95rem;
+  white-space: nowrap;
 }
 
 .nav a::after {
