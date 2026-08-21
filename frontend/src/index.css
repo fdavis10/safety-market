@@ -556,7 +556,13 @@ main {
   font-size: 12px;
 }
 
-.activity-grid,
+.activity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
 .cards-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -566,10 +572,6 @@ main {
 
 .cards-3 > .service-card {
   height: 100%;
-}
-
-.activity-grid > :nth-child(4) {
-  grid-column: 2;
 }
 
 .activity-card,
@@ -611,21 +613,19 @@ main {
   overflow: hidden;
 }
 
-.activity-card.has-cover:hover .cover {
-  transform: scale(1.03);
-}
-
 .activity-card .cover {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  height: auto;
+  object-fit: contain;
+  background: #f3f5f8;
 }
 
 .activity-card.has-cover p {
   margin: 0;
-  padding: 16px 20px 20px;
+  padding: 14px 18px 18px;
+  font-size: 0.95rem;
+  line-height: 1.45;
 }
 
 .split {
@@ -2042,10 +2042,6 @@ html:active-view-transition .page-enter {
   .two,
   .hero-stats {
     grid-template-columns: 1fr;
-  }
-
-  .activity-grid > :nth-child(4) {
-    grid-column: auto;
   }
 
   .header-inner {
