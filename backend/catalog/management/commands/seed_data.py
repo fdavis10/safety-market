@@ -10,7 +10,7 @@ def pay(p50, p90, post):
 SERVICES = [
     {
         "slug": "audit",
-        "name": "Первичный аудит и допуск (Compliance Check)",
+        "name": "Первичный аудит и допуск",
         "category": Service.Category.DOCS,
         "price": "35000.00",
         "prices": pay(35000, 25000, 50000),
@@ -50,7 +50,7 @@ SERVICES = [
     },
     {
         "slug": "insurance",
-        "name": "Страхование финансовых рисков (Risk Guarantee)",
+        "name": "Страхование финансовых рисков",
         "category": Service.Category.DOCS,
         "price": "49000.00",
         "prices": pay(49000, 35000, 70000),
@@ -90,7 +90,7 @@ SERVICES = [
     },
     {
         "slug": "travel-kit",
-        "name": "Путевое обеспечение (Travel Box)",
+        "name": "Путевое обеспечение",
         "category": Service.Category.LOGISTICS,
         "price": "70000.00",
         "prices": pay(70000, 50000, 100000),
@@ -103,7 +103,7 @@ SERVICES = [
     },
     {
         "slug": "welcome",
-        "name": "Welcome-пакет: Жилье и Питание",
+        "name": "Приветственный-пакет: Жилье и Питание",
         "category": Service.Category.ADAPTATION,
         "price": "56000.00",
         "prices": pay(56000, 40000, 80000),
