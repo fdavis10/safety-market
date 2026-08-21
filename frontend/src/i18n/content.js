@@ -210,7 +210,7 @@ export const SERVICES_EN = {
 
 const PACKAGE_PAYMENT_EN = {
   entry: '50% prepayment',
-  move: '90% prepayment',
+  move: '100% prepayment',
   turnkey: 'Postpayment',
 }
 
@@ -246,12 +246,15 @@ export function localizeService(service, lang) {
 }
 
 export function localizePackage(pack, lang) {
-  if (!pack || lang !== 'en') return pack
+  if (!pack) return pack
+  // Visual label only: payment key stays "90", prices unchanged
+  const payment_terms = String(pack.payment_terms || '').replaceAll('90%', '100%')
+  if (lang !== 'en') return { ...pack, payment_terms }
   return {
     ...pack,
     name: 'VIP All-Inclusive',
     description: 'All catalog services included.',
-    payment_terms: PACKAGE_PAYMENT_EN[pack.slug] || pack.payment_terms,
+    payment_terms: PACKAGE_PAYMENT_EN[pack.slug] || payment_terms,
     services: (pack.services || []).map((service) => localizeService(service, lang)),
   }
 }

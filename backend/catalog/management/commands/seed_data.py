@@ -217,7 +217,7 @@ PACKAGES = [
         "is_featured": False,
         "sort_order": 2,
         "services": PACKAGE_SERVICES,
-        "payment_terms": "90% предоплаты",
+        "payment_terms": "100% предоплаты",
         "payment_badges": [],
         "description": "Включены все услуги из каталога.",
     },
