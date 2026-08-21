@@ -719,9 +719,15 @@ main {
   min-height: 52px;
 }
 
-.service-card p {
+.service-card .service-desc {
+  margin: 0;
   color: var(--muted);
-  min-height: 88px;
+  line-height: 1.45;
+  height: calc(1.45em * 5);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
 }
 
 .service-card.has-cover {
@@ -2094,6 +2100,11 @@ html:active-view-transition .page-enter {
   .activity-card:hover,
   .service-card:hover {
     transform: none;
+  }
+
+  .service-card h3 {
+    margin: 6px 0 4px;
+    min-height: 0;
   }
 
   .hero {

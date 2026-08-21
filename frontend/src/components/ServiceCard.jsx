@@ -42,7 +42,7 @@ export default function ServiceCard({ service }) {
       )}
       <div className="service-body">
         <h3>{service.name}</h3>
-        <p>{service.description}</p>
+        <p className="service-desc">{service.description}</p>
         <p className="service-pay-label">{t('pay.label')}</p>
         <div
           className={`service-pay-switch ${unlocked ? `is-${localPayment}` : 'is-empty'}${servicePayment ? ' is-locked' : ''}`}

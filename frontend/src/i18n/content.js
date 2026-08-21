@@ -15,6 +15,7 @@ const SITE_RU = {
 }
 
 const SITE_EN = {
+  name: 'R PLUS',
   tagline: 'International staffing for a wide range of roles and specialties',
   description:
     'R PLUS staffing agency fills vacancies with qualified specialists and supports each candidate from document review through starting work in the Russian Federation.',
