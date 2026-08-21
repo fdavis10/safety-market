@@ -176,7 +176,7 @@ main {
 
 .nav {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 12px 14px;
   justify-content: center;
 }
@@ -189,6 +189,10 @@ main {
   padding: 4px 0;
   font-size: 0.95rem;
   white-space: nowrap;
+}
+
+.nav-home {
+  display: none;
 }
 
 .nav a::after {
@@ -2084,6 +2088,10 @@ html:active-view-transition .page-enter {
     align-items: stretch;
     padding-bottom: 16px;
     animation: page-in 0.55s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  .header-inner.open .nav-home {
+    display: block;
   }
 
   .package-card.featured,

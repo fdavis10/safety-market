@@ -53,7 +53,7 @@ export default function Header() {
             </button>
           </div>
           <nav className={`nav ${open ? 'open' : ''}`}>
-            <NavLink to="/" end viewTransition onClick={close}>
+            <NavLink to="/" end viewTransition onClick={close} className="nav-home">
               {t('nav.home')}
             </NavLink>
             <NavLink to="/services" viewTransition onClick={close}>
