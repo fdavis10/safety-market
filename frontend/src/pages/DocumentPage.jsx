@@ -2,6 +2,12 @@ import { useEffect, useState } from 'react'
 import { api } from '../api'
 import { useLocale } from '../i18n/LocaleContext'
 
+const TITLES = {
+  rules: 'docs.rules',
+  offer: 'docs.offer',
+  privacy: 'docs.privacy',
+}
+
 export default function DocumentPage({ kind }) {
   const [site, setSite] = useState(null)
   const { t, localizeSite } = useLocale()
@@ -11,8 +17,8 @@ export default function DocumentPage({ kind }) {
   }, [])
 
   const localized = localizeSite(site)
-  const title = kind === 'rules' ? t('docs.rules') : t('docs.offer')
-  const text = localized ? (kind === 'rules' ? localized.rules : localized.offer) : ''
+  const title = t(TITLES[kind] || 'docs.rules')
+  const text = localized?.[kind] || ''
 
   return (
     <section className="section">

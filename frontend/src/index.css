@@ -1495,6 +1495,90 @@ main {
   line-height: 1.45;
 }
 
+.confirm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(11, 28, 49, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.confirm-modal {
+  width: min(100%, 520px);
+  max-height: min(90vh, 640px);
+  overflow: auto;
+  padding: 28px 28px 24px;
+  border-radius: 18px;
+  background: #1a1a1a;
+  color: #fff;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.confirm-modal h2 {
+  margin: 0 0 16px;
+  color: #fff;
+  font-size: clamp(1.45rem, 3vw, 1.85rem);
+  font-weight: 700;
+}
+
+.confirm-modal p {
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.confirm-modal ul {
+  margin: 0 0 18px;
+  padding-left: 1.15rem;
+  line-height: 1.55;
+}
+
+.confirm-modal li + li {
+  margin-top: 8px;
+}
+
+.confirm-modal a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.confirm-modal-note {
+  margin-bottom: 22px !important;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.confirm-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.confirm-modal-actions .btn {
+  flex: 1 1 160px;
+}
+
+.btn-ghost-light {
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.btn-ghost-light:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-ghost-light:disabled,
+.confirm-modal-actions .btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+  transform: none;
+}
+
 .card-box-title {
 }
 

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { useCart } from '../CartContext'
 import PhoneField from '../components/PhoneField'
@@ -22,16 +22,32 @@ const initial = {
 export default function Checkout() {
   const { cart, refresh, servicesById } = useCart()
   const { t, money, lang } = useLocale()
+  const navigate = useNavigate()
   const [form, setForm] = useState(initial)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [phoneOk, setPhoneOk] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   function setField(name, value) {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  async function submit(event) {
+  useEffect(() => {
+    if (!confirmOpen) return undefined
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    function onKey(event) {
+      if (event.key === 'Escape' && !busy) setConfirmOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [confirmOpen, busy])
+
+  function openConfirm(event) {
     event.preventDefault()
     setError('')
     if (!phoneOk) {
@@ -44,6 +60,16 @@ export default function Checkout() {
       setError(t('checkout.err.consents'))
       return
     }
+    setConfirmOpen(true)
+  }
+
+  function backToCart() {
+    setConfirmOpen(false)
+    navigate('/cart', { viewTransition: true })
+  }
+
+  async function confirmPayment() {
+    setError('')
     setBusy(true)
     try {
       const {
@@ -58,7 +84,7 @@ export default function Checkout() {
         method: 'POST',
         body: {
           ...payload,
-          offer_accepted,
+          offer_accepted: true,
           comment: '',
         },
       })
@@ -68,6 +94,7 @@ export default function Checkout() {
       }
       window.location.assign(order.form_url)
     } catch (err) {
+      setConfirmOpen(false)
       setError(err.message)
       setBusy(false)
     }
@@ -120,7 +147,7 @@ export default function Checkout() {
           <p className="total">{t('checkout.total', { amount: money(cart.total) })}</p>
         </aside>
 
-        <form className="order-form" onSubmit={submit}>
+        <form className="order-form" onSubmit={openConfirm}>
           <div className="order-form-panel">
             <h1>{t('checkout.title')}</h1>
             <label>
@@ -166,13 +193,10 @@ export default function Checkout() {
               />
               <span>
                 {t('checkout.consent.pdPrefix')}{' '}
-                <a
-                  href="https://www.consultant.ru/document/cons_doc_LAW_61801/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <Link to="/privacy" viewTransition>
                   {t('checkout.consent.pd')}
-                </a>
+                </Link>
+                .
               </span>
             </label>
             <label className="check">
@@ -186,6 +210,7 @@ export default function Checkout() {
                 <Link to="/rules" viewTransition>
                   {t('checkout.consent.rules')}
                 </Link>
+                .
               </span>
             </label>
             <label className="check">
@@ -199,6 +224,7 @@ export default function Checkout() {
                 <Link to="/offer" viewTransition>
                   {t('checkout.consent.offer')}
                 </Link>
+                .
               </span>
             </label>
           </div>
@@ -209,6 +235,56 @@ export default function Checkout() {
           </button>
         </form>
       </div>
+
+      {confirmOpen && (
+        <div
+          className="confirm-modal-backdrop"
+          role="presentation"
+          onClick={() => {
+            if (!busy) setConfirmOpen(false)
+          }}
+        >
+          <div
+            className="confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="checkout-confirm-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2 id="checkout-confirm-title">{t('checkout.confirm.title')}</h2>
+            <p>{t('checkout.confirm.lead')}</p>
+            <ul>
+              <li>
+                {t('checkout.confirm.item1.before')}{' '}
+                <Link to="/privacy" viewTransition onClick={() => setConfirmOpen(false)}>
+                  {t('checkout.confirm.item1.link')}
+                </Link>
+                {t('checkout.confirm.item1.after')}
+              </li>
+              <li>
+                {t('checkout.confirm.item2.before')}{' '}
+                <Link to="/rules" viewTransition onClick={() => setConfirmOpen(false)}>
+                  {t('checkout.confirm.item2.rules')}
+                </Link>{' '}
+                {t('checkout.confirm.item2.mid')}{' '}
+                <Link to="/offer" viewTransition onClick={() => setConfirmOpen(false)}>
+                  {t('checkout.confirm.item2.offer')}
+                </Link>
+                {t('checkout.confirm.item2.after')}
+              </li>
+            </ul>
+            <p className="confirm-modal-note">{t('checkout.confirm.note')}</p>
+            <div className="confirm-modal-actions">
+              <button type="button" className="btn btn-ghost-light" disabled={busy} onClick={backToCart}>
+                {t('checkout.confirm.back')}
+              </button>
+              <button type="button" className="btn btn-gold" disabled={busy} onClick={confirmPayment}>
+                {busy ? t('checkout.redirecting') : t('checkout.confirm.submit')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

@@ -84,6 +84,49 @@ A refund is possible before service delivery begins, upon written request. If wo
 The parties keep candidate personal data and the employer’s commercial information confidential.
 `.trim()
 
+const PRIVACY_EN = `
+Personal data processing policy of the R PLUS staffing agency
+
+1. General
+This Policy defines how the R PLUS agency processes and protects personal data of website users
+and clients in accordance with applicable personal data laws of the Russian Federation (Federal Law No. 152-FZ).
+
+2. Controller
+The controller is R PLUS LLC. Contact details are published on the website and in the contract (offer).
+
+3. Data processed
+Full name, email, phone number, citizenship, information provided in the order and comments,
+and technical data needed to operate the website and process payments.
+
+4. Purposes
+Contract performance, order processing and support, contacting the customer, payment processing,
+migration and adaptation support, and compliance with Russian law.
+
+5. Legal bases
+The data subject’s consent, conclusion and performance of a contract, and other bases provided by law.
+
+6. Sharing
+Data may be shared with the payment provider (bank) to process payment, and with government bodies
+and partners to the extent required to deliver services, where a legal basis exists.
+Sharing without a legal basis is not performed.
+
+7. Retention
+Data is retained for as long as needed for the processing purposes and for periods required by law
+and contract, after which it is deleted or anonymized.
+
+8. Data subject rights
+You may request information about processing, demand correction, blocking, or deletion, and withdraw
+consent where the law allows, by contacting the Controller.
+
+9. Security measures
+The Controller takes organizational and technical measures to protect personal data against unlawful
+access, destruction, alteration, blocking, copying, and distribution.
+
+10. Policy updates
+The current Policy is published on the website. Continued use of the site after updates means acceptance
+of the revised Policy unless the law requires otherwise.
+`.trim()
+
 export const SERVICES_EN = {
   audit: {
     name: 'Initial audit and clearance (Compliance Check)',
@@ -191,6 +234,7 @@ export function localizeSite(site, lang) {
     ...SITE_EN,
     rules: RULES_EN,
     offer: OFFER_EN,
+    privacy: PRIVACY_EN,
   }
 }
 

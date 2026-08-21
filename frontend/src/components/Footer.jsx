@@ -31,6 +31,9 @@ export default function Footer() {
           <Link to="/offer" viewTransition>
             {t('docs.offer')}
           </Link>
+          <Link to="/privacy" viewTransition>
+            {t('docs.privacy')}
+          </Link>
         </div>
       </div>
       <div className="container footer-copy">{t('footer.copy')}</div>

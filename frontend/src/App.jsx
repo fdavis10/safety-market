@@ -23,6 +23,7 @@ export default function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/rules" element={<DocumentPage kind="rules" />} />
             <Route path="/offer" element={<DocumentPage kind="offer" />} />
+            <Route path="/privacy" element={<DocumentPage kind="privacy" />} />
             <Route path="/order/:id/pay" element={<OrderPayReturn />} />
             <Route path="/order/:id" element={<OrderSuccess />} />
             <Route path="*" element={<Navigate to="/" replace />} />
