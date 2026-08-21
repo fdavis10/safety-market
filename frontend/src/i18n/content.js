@@ -189,7 +189,7 @@ export const SERVICES_EN = {
       'Express training in essential Russian basics. Learning job-specific terminology and phrases for safe and effective performance at work.',
   },
   kit: {
-    name: 'Everyday equipment kit',
+    name: 'Household items and other essentials',
     short_label: 'Everyday',
     description:
       'Purchase of seasonal clothing, footwear, and hygiene items. Issuance of a basic smartphone with a prepaid local SIM card.',

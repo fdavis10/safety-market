@@ -142,7 +142,7 @@ SERVICES = [
     },
     {
         "slug": "kit",
-        "name": "Бытовая экипировка",
+        "name": "Бытовые принадлежности и прочее",
         "category": Service.Category.ADAPTATION,
         "price": "35000.00",
         "prices": pay(35000, 25000, 50000),
