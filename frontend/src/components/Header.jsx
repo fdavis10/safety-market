@@ -97,9 +97,6 @@ export default function Header() {
                 {cart.count > 0 && <span className="cart-count">{cart.count}</span>}
               </Link>
             )}
-            <Link to="/services" className="btn btn-gold" viewTransition onClick={close}>
-              {t('nav.orderService')}
-            </Link>
           </div>
         </div>
       </header>
