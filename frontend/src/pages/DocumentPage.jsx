@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
+import { getDefaultSite } from '../i18n/content'
 import { useLocale } from '../i18n/LocaleContext'
 
 const TITLES = {
@@ -9,12 +10,15 @@ const TITLES = {
 }
 
 export default function DocumentPage({ kind }) {
-  const [site, setSite] = useState(null)
-  const { t, localizeSite } = useLocale()
+  const { t, lang, localizeSite } = useLocale()
+  const [site, setSite] = useState(() => getDefaultSite(lang))
 
   useEffect(() => {
-    api('/api/site/').then(setSite)
-  }, [])
+    setSite(getDefaultSite(lang))
+    api('/api/site/')
+      .then(setSite)
+      .catch(() => {})
+  }, [lang])
 
   const localized = localizeSite(site)
   const title = t(TITLES[kind] || 'docs.rules')
@@ -25,7 +29,7 @@ export default function DocumentPage({ kind }) {
       <div className="container document">
         <p className="eyebrow">{t('docs.eyebrow')}</p>
         <h1>{title}</h1>
-        <pre>{text || t('docs.loading')}</pre>
+        <pre>{text}</pre>
       </div>
     </section>
   )
