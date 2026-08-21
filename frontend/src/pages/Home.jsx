@@ -2,18 +2,14 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
 import Logo from '../components/Logo'
-import searchImg from '../assets/activity/searching.webp'
-import auditImg from '../assets/activity/auditdocuments.webp'
-import logisticImg from '../assets/activity/world_logistic.webp'
-import adaptImg from '../assets/activity/adaptaion.webp'
+import { activityImages } from '../data/activityImages'
 import { useLocale } from '../i18n/LocaleContext'
 import { getDefaultSite } from '../i18n/content'
-
-const ACTIVITY_IMAGES = [searchImg, auditImg, logisticImg, adaptImg]
 
 export default function Home() {
   const { t, lang, localizeSite } = useLocale()
   const [site, setSite] = useState(() => getDefaultSite(lang))
+  const covers = activityImages(lang)
 
   useEffect(() => {
     setSite(getDefaultSite(lang))
@@ -66,11 +62,11 @@ export default function Home() {
           <h2>{t('home.activityTitle')}</h2>
           <div className="activity-grid">
             {localized.activity.map((item, index) => (
-              <article key={item} className={`activity-card ${ACTIVITY_IMAGES[index] ? 'has-cover' : ''}`}>
-                {ACTIVITY_IMAGES[index] ? (
+              <article key={item} className={`activity-card ${covers[index] ? 'has-cover' : ''}`}>
+                {covers[index] ? (
                   <img
                     className="cover"
-                    src={ACTIVITY_IMAGES[index]}
+                    src={covers[index]}
                     alt=""
                     loading={index === 0 ? 'eager' : 'lazy'}
                     decoding="async"
