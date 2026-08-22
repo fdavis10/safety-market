@@ -5,8 +5,8 @@ import { useLocale } from '../i18n/LocaleContext'
 
 export default function PackageCard({ pack }) {
   const { addPackage } = useCart()
-  const { t, money } = useLocale()
-  const cover = packageImage(pack.slug)
+  const { t, money, lang } = useLocale()
+  const cover = packageImage(pack.slug, lang)
   const [route, setRoute] = useState('standard')
 
   const upgrade = Number(pack.logistics_upgrade || 0)
