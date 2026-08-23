@@ -1251,6 +1251,17 @@ main {
   color: var(--navy);
 }
 
+.cart-conflict {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(180, 60, 40, 0.08);
+  border: 1px solid rgba(180, 60, 40, 0.28);
+  color: #8a2f1f;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
 .summary {
   display: grid;
   gap: 12px;

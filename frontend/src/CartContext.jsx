@@ -55,6 +55,28 @@ export function CartProvider({ children }) {
     [services],
   )
 
+  const hasPackageServiceOverlap = useMemo(() => {
+    const packageItems = cart.items.filter((item) => item.kind === 'package')
+    const serviceItems = cart.items.filter((item) => item.kind === 'service')
+    if (!packageItems.length || !serviceItems.length) return false
+
+    const covered = new Set()
+    for (const other of services) {
+      if (other.slug === 'logistics-standard' || other.slug === 'logistics-multimodal') {
+        covered.add(other.id)
+      }
+    }
+    for (const item of packageItems) {
+      const pack = packages.find((entry) => entry.id === item.package)
+      if (!pack) continue
+      for (const service of pack.services || []) {
+        covered.add(service.id)
+      }
+    }
+
+    return serviceItems.some((item) => covered.has(item.service))
+  }, [cart.items, packages, services])
+
   const value = useMemo(
     () => ({
       cart,
@@ -65,6 +87,7 @@ export function CartProvider({ children }) {
       services,
       packages,
       servicesById,
+      hasPackageServiceOverlap,
       refresh,
       async addService(service, paymentType = '50') {
         const serviceId = typeof service === 'object' ? service.id : service
@@ -127,7 +150,7 @@ export function CartProvider({ children }) {
         return data
       },
     }),
-    [cart, packages, services, servicesById, toast, servicePayment, t],
+    [cart, packages, services, servicesById, hasPackageServiceOverlap, toast, servicePayment, t],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

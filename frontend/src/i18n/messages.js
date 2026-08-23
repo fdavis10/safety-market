@@ -40,6 +40,8 @@ export const messages = {
     'cart.addedService': 'Услуга добавлена в корзину',
     'cart.addedPackage': 'Пакет добавлен в корзину',
     'cart.inPackage': '{name} уже входит в пакет «{pack}» в корзине',
+    'cart.servicesInPackage':
+      'Услуги уже входят в пакет. Уберите их из корзины, чтобы продолжить.',
     'route.label': 'Выберите тип маршрута',
     'route.standard': 'Стандартный',
     'route.standard.hint': 'прямой / 1 пересадка',
@@ -170,6 +172,8 @@ export const messages = {
     'cart.addedService': 'Service added to cart',
     'cart.addedPackage': 'Package added to cart',
     'cart.inPackage': '{name} is already included in the “{pack}” package in your cart',
+    'cart.servicesInPackage':
+      'These services are already included in the package. Remove them from the cart to continue.',
     'route.label': 'Choose route type',
     'route.standard': 'Standard',
     'route.standard.hint': 'direct / 1 stop',

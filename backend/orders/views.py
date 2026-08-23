@@ -54,6 +54,26 @@ def payment_type_for_cart_item(item):
     return "50"
 
 
+def package_service_conflict(items):
+    """True if cart has both a package and standalone services already covered by it."""
+    package_items = [item for item in items if item.package_id]
+    service_items = [item for item in items if item.service_id]
+    if not package_items or not service_items:
+        return False
+
+    covered_ids = set()
+    logistics_ids = set(
+        Service.objects.filter(
+            slug__in=["logistics-standard", "logistics-multimodal"]
+        ).values_list("id", flat=True)
+    )
+    for item in package_items:
+        covered_ids.update(item.package.services.values_list("id", flat=True))
+        covered_ids.update(logistics_ids)
+
+    return any(item.service_id in covered_ids for item in service_items)
+
+
 class CartView(APIView):
     def get(self, request):
         ensure_session(request)
@@ -125,20 +145,6 @@ class PackageCartView(APIView):
         if logistics_route not in {"standard", "multimodal"}:
             return Response({"detail": "Некорректный тип маршрута."}, status=400)
 
-        # Если в корзине уже есть отдельные услуги из этого пакета,
-        # не позволяем добавить пакет и эти услуги вместе.
-        service_ids = list(package.services.values_list("id", flat=True))
-        logistics_ids = list(
-            Service.objects.filter(slug__in=["logistics-standard", "logistics-multimodal"]).values_list("id", flat=True)
-        )
-        conflict_ids = set(service_ids) | set(logistics_ids)
-        existing_service_item = cart_qs(request).filter(service_id__in=conflict_ids).first()
-        if existing_service_item and existing_service_item.service_id:
-            service_name = existing_service_item.service.name if existing_service_item.service else "Эта услуга"
-            return Response(
-                {"detail": f"Услуга «{service_name}» уже добавлена в корзину."},
-                status=409,
-            )
         session_key = ensure_session(request)
         user = request.user if request.user.is_authenticated else None
         item, created = CartItem.objects.get_or_create(
@@ -160,9 +166,19 @@ class CheckoutView(APIView):
     def post(self, request):
         serializer = CheckoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        items = list(cart_qs(request))
+        items = list(cart_qs(request).select_related("service", "package").prefetch_related("package__services"))
         if not items:
             return Response({"detail": "Корзина пуста."}, status=400)
+
+        if package_service_conflict(items):
+            return Response(
+                {
+                    "detail": (
+                        "Услуги уже входят в пакет. Уберите их из корзины, чтобы продолжить."
+                    )
+                },
+                status=409,
+            )
 
         total = sum((item.line_total for item in items), Decimal("0"))
         if total <= 0:

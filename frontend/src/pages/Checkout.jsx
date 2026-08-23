@@ -20,7 +20,7 @@ const initial = {
 }
 
 export default function Checkout() {
-  const { cart, refresh, servicesById } = useCart()
+  const { cart, refresh, servicesById, hasPackageServiceOverlap, setToast } = useCart()
   const { t, money, lang } = useLocale()
   const navigate = useNavigate()
   const [form, setForm] = useState(initial)
@@ -32,6 +32,12 @@ export default function Checkout() {
   function setField(name, value) {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
+
+  useEffect(() => {
+    if (!hasPackageServiceOverlap) return
+    setToast(t('cart.servicesInPackage'))
+    navigate('/cart', { replace: true, viewTransition: true })
+  }, [hasPackageServiceOverlap, navigate, setToast, t])
 
   useEffect(() => {
     if (!confirmOpen) return undefined
@@ -100,13 +106,17 @@ export default function Checkout() {
     }
   }
 
-  if (!cart.items.length) {
+  if (!cart.items.length || hasPackageServiceOverlap) {
     return (
       <section className="section container">
         <h1>{t('checkout.title')}</h1>
-        <p>{t('checkout.empty')}</p>
-        <Link to="/services" className="btn btn-gold" viewTransition>
-          {t('checkout.toCatalog')}
+        <p>{hasPackageServiceOverlap ? t('cart.servicesInPackage') : t('checkout.empty')}</p>
+        <Link
+          to={hasPackageServiceOverlap ? '/cart' : '/services'}
+          className="btn btn-gold"
+          viewTransition
+        >
+          {hasPackageServiceOverlap ? t('cart.title') : t('checkout.toCatalog')}
         </Link>
       </section>
     )

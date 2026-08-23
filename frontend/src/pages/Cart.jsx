@@ -1,11 +1,23 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../CartContext'
 import { useLocale } from '../i18n/LocaleContext'
 import { localizeCartItemName } from '../i18n/content'
 
 export default function Cart() {
-  const { cart, updateItem, removeItem, clear, servicesById } = useCart()
+  const { cart, updateItem, removeItem, clear, servicesById, hasPackageServiceOverlap, setToast } =
+    useCart()
   const { t, money, lang } = useLocale()
+  const navigate = useNavigate()
+
+  function handleCheckout(event) {
+    event.preventDefault()
+    if (!cart.items.length) return
+    if (hasPackageServiceOverlap) {
+      setToast(t('cart.servicesInPackage'))
+      return
+    }
+    navigate('/checkout', { viewTransition: true })
+  }
 
   return (
     <section className="section">
@@ -45,7 +57,15 @@ export default function Cart() {
             {money(cart.total)} <span aria-hidden="true">*</span>
           </p>
           <p className="muted">{t('cart.note')}</p>
-          <Link to="/checkout" className={`btn btn-gold ${cart.items.length ? '' : 'disabled'}`} viewTransition>
+          {hasPackageServiceOverlap && (
+            <p className="cart-conflict">{t('cart.servicesInPackage')}</p>
+          )}
+          <Link
+            to="/checkout"
+            className={`btn btn-gold ${cart.items.length ? '' : 'disabled'}`}
+            viewTransition
+            onClick={handleCheckout}
+          >
             {t('cart.checkout')}
           </Link>
           {cart.items.length > 0 && (
